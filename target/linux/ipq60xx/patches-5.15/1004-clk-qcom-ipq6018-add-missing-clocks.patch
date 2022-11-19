@@ -69,7 +69,7 @@ index cf11c9aa5004..69d06dd4aeb8 100644
 +				&system_noc_bfdcd_clk_src.clkr.hw },
 +		.num_parents = 1,
 +		.ops = &clk_fixed_factor_ops,
-+		.flags = CLK_SET_RATE_PARENT,
++		.flags = CLK_SET_RATE_PARENT | CLK_IGNORE_UNUSED,
 +	},
 +};
 +

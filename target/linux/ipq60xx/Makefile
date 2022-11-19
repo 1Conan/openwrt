@@ -15,6 +15,8 @@ DEFAULT_PACKAGES += \
 	kmod-leds-gpio kmod-gpio-button-hotplug \
 	kmod-qca-nss-dp \
 	kmod-ath11k-ahb \
-	wpad-basic-wolfssl uboot-envtools
+	wpad-basic-wolfssl uboot-envtools \
+	ath11k-firmware-ipq6018 \
+	nss-firmware-ipq6018 kmod-qca-nss-drv
 
 $(eval $(call BuildTarget))
