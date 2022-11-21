@@ -1,0 +1,32 @@
+--- a/nss_dp_main.c
++++ b/nss_dp_main.c
+@@ -828,24 +828,17 @@
+ 
+ 	dp_priv->drv_flags |= NSS_DP_PRIV_FLAG(INIT_DONE);
+ 
+-	if (dp_priv->link_poll) {
+-		dp_priv->miibus = nss_dp_mdio_attach(pdev);
+-		if (!dp_priv->miibus) {
+-			netdev_dbg(netdev, "failed to find miibus\n");
+-			goto phy_setup_fail;
+-		}
+-		snprintf(phy_id, MII_BUS_ID_SIZE + 3, PHY_ID_FMT,
+-				dp_priv->miibus->id, dp_priv->phy_mdio_addr);
+-
++	if (dp_priv->phy_node) {
+ 		SET_NETDEV_DEV(netdev, &pdev->dev);
+ 
+-		dp_priv->phydev = phy_connect(netdev, phy_id,
+-				&nss_dp_adjust_link,
+-				dp_priv->phy_mii_type);
++		dp_priv->phydev = of_phy_connect(netdev, dp_priv->phy_node,
++                                     &nss_dp_adjust_link, 0,
++                                     dp_priv->phy_mii_type);
+ 		if (IS_ERR(dp_priv->phydev)) {
+ 			netdev_dbg(netdev, "failed to connect to phy device\n");
+ 			goto phy_setup_fail;
+ 		}
++		phy_attached_info(dp_priv->phydev);
+ 	}
+ 
+ #if defined(NSS_DP_PPE_SUPPORT)

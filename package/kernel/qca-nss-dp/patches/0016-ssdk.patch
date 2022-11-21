@@ -1,0 +1,11 @@
+--- a/nss_dp_main.c
++++ b/nss_dp_main.c
+@@ -360,7 +360,7 @@
+ 	 * Enable SSDK PHY polling task to enable GMACs.
+ 	 */
+ 	if (!dp_global_ctx.enable_polling_task) {
+-		ssdk_mac_sw_sync_work_start(NSS_DP_EDMA_SWITCH_DEV_ID);
++		qca_mac_sw_sync_work_start(NSS_DP_EDMA_SWITCH_DEV_ID);
+ 		dp_global_ctx.enable_polling_task = true;
+ 	}
+ #endif
