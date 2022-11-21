@@ -75,6 +75,7 @@ ifeq ($(CONFIG_TARGET_BOARD), "ipq807x")
 else ifeq ($(CONFIG_TARGET_BOARD), "ipq60xx")
     SOC="ipq60xx_64"
 endif
+
 define Build/InstallDev
 	mkdir -p $(1)/usr/include/qca-nss-ecm
 	$(CP) $(PKG_BUILD_DIR)/exports/* $(1)/usr/include/qca-nss-ecm

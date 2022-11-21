@@ -49,6 +49,12 @@ EXTRA_CFLAGS+= \
 	-I$(PKG_BUILD_DIR)/$(NSS_CRYPTO_DIR)/include \
 	-I$(PKG_BUILD_DIR)/$(NSS_CRYPTO_DIR)/src
 
+ifeq ($(CONFIG_TARGET_BOARD), "ipq807x")
+    SOC="ipq807x_64"
+else ifeq ($(CONFIG_TARGET_BOARD), "ipq60xx")
+    SOC="ipq60xx_64"
+endif
+
 define Build/Compile
 	$(MAKE) -C "$(LINUX_DIR)" \
 		CC="$(TARGET_CC)" \
@@ -57,7 +63,7 @@ define Build/Compile
 		M="$(PKG_BUILD_DIR)" \
 		EXTRA_CFLAGS="$(EXTRA_CFLAGS)" \
 		NSS_CRYPTO_DIR=$(NSS_CRYPTO_DIR) \
-		SoC="$(CONFIG_TARGET_BOARD)_64" \
+		SoC="$(SOC)" \
 		modules
 endef
 
