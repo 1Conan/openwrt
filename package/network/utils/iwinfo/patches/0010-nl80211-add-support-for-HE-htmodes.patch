@@ -1,0 +1,77 @@
+From c9c650c0ab6f58d254d779d295d68f9f5673a337 Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Fri, 18 Nov 2022 12:14:47 +0100
+Subject: [PATCH 10/14] nl80211: add support for HE htmodes
+
+Use hostapd to determine if 802.11ax is enabled.
+
+Signed-off-by: Andre Heider <a.heider@gmail.com>
+---
+ iwinfo_nl80211.c | 32 +++++++++++++++++++++++++-------
+ 1 file changed, 25 insertions(+), 7 deletions(-)
+
+--- a/iwinfo_nl80211.c
++++ b/iwinfo_nl80211.c
+@@ -3288,9 +3288,10 @@ static int nl80211_get_htmode_cb(struct
+ 
+ static int nl80211_get_htmode(const char *ifname, int *buf)
+ {
+-	struct chan_info chn = { .width = 0, .mode = 0 };
+-	char *res;
++	struct chan_info chn = { 0 };
++	char *res, ax[2] = { 0 };
+ 	int err;
++	bool he = false;
+ 
+ 	res = nl80211_phy2ifname(ifname);
+ 	*buf = 0;
+@@ -3301,27 +3302,44 @@ static int nl80211_get_htmode(const char
+ 	if (err)
+ 		return -1;
+ 
++	/* TODO there has to be a better way? What about client/adhoc/mesh? */
++	if (nl80211_hostapd_query(res ? res : ifname, "ieee80211ax", ax, sizeof(ax)))
++		he = ax[0] == '1';
++
+ 	switch (chn.width) {
+ 	case NL80211_CHAN_WIDTH_20:
+-		if (chn.mode == -1)
++		if (he)
++			*buf = IWINFO_HTMODE_HE20;
++		else if (chn.mode == -1)
+ 			*buf = IWINFO_HTMODE_VHT20;
+ 		else
+ 			*buf = IWINFO_HTMODE_HT20;
+ 		break;
+ 	case NL80211_CHAN_WIDTH_40:
+-		if (chn.mode == -1)
++		if (he)
++			*buf = IWINFO_HTMODE_HE40;
++		else if (chn.mode == -1)
+ 			*buf = IWINFO_HTMODE_VHT40;
+ 		else
+ 			*buf = IWINFO_HTMODE_HT40;
+ 		break;
+ 	case NL80211_CHAN_WIDTH_80:
+-		*buf = IWINFO_HTMODE_VHT80;
++		if (he)
++			*buf = IWINFO_HTMODE_HE80;
++		else
++			*buf = IWINFO_HTMODE_VHT80;
+ 		break;
+ 	case NL80211_CHAN_WIDTH_80P80:
+-		*buf = IWINFO_HTMODE_VHT80_80;
++		if (he)
++			*buf = IWINFO_HTMODE_HE80_80;
++		else
++			*buf = IWINFO_HTMODE_VHT80_80;
+ 		break;
+ 	case NL80211_CHAN_WIDTH_160:
+-		*buf = IWINFO_HTMODE_VHT160;
++		if (he)
++			*buf = IWINFO_HTMODE_HE160;
++		else
++			*buf = IWINFO_HTMODE_VHT160;
+ 		break;
+ 	case NL80211_CHAN_WIDTH_5:
+ 	case NL80211_CHAN_WIDTH_10:

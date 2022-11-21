@@ -1,0 +1,69 @@
+From 6196271b0c2eac579c5861d5e4ce734bb961e155 Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Tue, 15 Nov 2022 14:12:41 +0100
+Subject: [PATCH 07/14] nl80211: don't guess if a name is an ifname
+
+It's too slow to do it all over again and again, especially with e.g.
+luci constantly polling.
+
+Before:
+$ time iwinfo phy0 info
+real	0m 0.54s
+$ time iwinfo radio0 info
+real	0m 0.70s
+$ time ubus call luci-rpc getWirelessDevices
+real	0m 0.67s
+
+After:
+$ time iwinfo phy0 info
+real	0m 0.04s
+$ time iwinfo radio0 info
+real	0m 0.09s
+$ time ubus call luci-rpc getWirelessDevices
+real	0m 0.17s
+
+Signed-off-by: Andre Heider <a.heider@gmail.com>
+---
+ iwinfo_nl80211.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
+
+--- a/iwinfo_nl80211.c
++++ b/iwinfo_nl80211.c
+@@ -22,6 +22,7 @@
+  * Parts of this code are derived from the Linux iw utility.
+  */
+ 
++#include <sys/stat.h>
+ #include <limits.h>
+ #include <glob.h>
+ #include <fnmatch.h>
+@@ -411,6 +412,15 @@ out:
+ 	return idx;
+ }
+ 
++static bool nl80211_is_ifname(const char *name)
++{
++	struct stat st;
++	char buffer[PATH_MAX];
++
++	snprintf(buffer, sizeof(buffer), "/sys/class/net/%s", name);
++	return !lstat(buffer, &st);
++}
++
+ static struct nl80211_msg_conveyor * nl80211_msg(const char *ifname,
+                                                  int cmd, int flags)
+ {
+@@ -426,10 +436,10 @@ static struct nl80211_msg_conveyor * nl8
+ 
+ 	if (!strncmp(ifname, "mon.", 4))
+ 		ifidx = if_nametoindex(&ifname[4]);
+-	else
++	else if (nl80211_is_ifname(ifname))
+ 		ifidx = if_nametoindex(ifname);
+-
+-	if (!ifidx) {
++	else
++	{
+ 		phyidx = nl80211_phy_idx_from_phy(ifname);
+ 		if (phyidx < 0)
+ 			phyidx = nl80211_phy_idx_from_uci(ifname);

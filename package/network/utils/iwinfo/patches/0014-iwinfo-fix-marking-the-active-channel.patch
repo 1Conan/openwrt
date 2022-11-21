@@ -1,0 +1,50 @@
+From 325327fef3455aba0e66700b88cd3191ff4e906a Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Thu, 17 Nov 2022 21:59:46 +0100
+Subject: [PATCH 14/14] iwinfo: fix marking the active channel
+
+Match by frequency and not by channel as the radio might have the same
+channel on multiple bands:
+
+$ iwinfo radio0 freqlist
+[snip]
+* 2.432 GHz (Channel 5)
+[snip]
+* 5.975 GHz (Channel 5)
+[snip]
+
+Signed-off-by: Andre Heider <a.heider@gmail.com>
+---
+ iwinfo_cli.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+--- a/iwinfo_cli.c
++++ b/iwinfo_cli.c
+@@ -730,7 +730,7 @@ static void print_txpwrlist(const struct
+ 
+ static void print_freqlist(const struct iwinfo_ops *iw, const char *ifname)
+ {
+-	int i, len, ch;
++	int i, len, freq;
+ 	char buf[IWINFO_BUFSIZE];
+ 	struct iwinfo_freqlist_entry *e;
+ 
+@@ -740,15 +740,15 @@ static void print_freqlist(const struct
+ 		return;
+ 	}
+ 
+-	if (iw->channel(ifname, &ch))
+-		ch = -1;
++	if (iw->frequency(ifname, &freq))
++		freq = -1;
+ 
+ 	for (i = 0; i < len; i += sizeof(struct iwinfo_freqlist_entry))
+ 	{
+ 		e = (struct iwinfo_freqlist_entry *) &buf[i];
+ 
+ 		printf("%s %s (Channel %s)%s\n",
+-			(ch == e->channel) ? "*" : " ",
++			(freq == e->mhz) ? "*" : " ",
+ 			format_frequency(e->mhz),
+ 			format_channel(e->channel),
+ 			e->restricted ? " [restricted]" : "");

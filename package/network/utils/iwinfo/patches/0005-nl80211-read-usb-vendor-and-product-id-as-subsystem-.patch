@@ -1,0 +1,36 @@
+From bd3ad4fd132f1bd6611833cca62110282b74f1e3 Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Sun, 13 Nov 2022 15:25:15 +0100
+Subject: [PATCH 05/14] nl80211: read usb vendor and product id as subsystem
+ ids
+
+USB devices can now be added to devices.txt as:
+0x0000 | 0x0000 | vendor id | product id | ...
+
+Signed-off-by: Andre Heider <a.heider@gmail.com>
+---
+ devices.txt      | 2 ++
+ iwinfo_nl80211.c | 4 +++-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+--- a/devices.txt
++++ b/devices.txt
+@@ -200,3 +200,5 @@
+ 0x14e4 0xaa52 0x14e4 0xaa52    0      0  "Broadcom" "BCM43602"
+ 0x02d0 0xa9a6 0x0000 0x0000    0      0  "Cypress"  "CYW43455"
+ 0x1ae9 0x0310 0x1ae9 0x0000    0      0  "Wilocity" "Wil6210"
++# USB devices
++# 0x0000 | 0x0000 | vendor id | product id | ...
+--- a/iwinfo_nl80211.c
++++ b/iwinfo_nl80211.c
+@@ -3472,7 +3472,9 @@ static int nl80211_get_hardware_id(const
+ 		{ "vendor", &id->vendor_id },
+ 		{ "device", &id->device_id },
+ 		{ "subsystem_vendor", &id->subsystem_vendor_id },
+-		{ "subsystem_device", &id->subsystem_device_id }
++		{ "subsystem_device", &id->subsystem_device_id },
++		{ "../idVendor", &id->subsystem_vendor_id },
++		{ "../idProduct", &id->subsystem_device_id },
+ 	};
+ 
+ 	memset(id, 0, sizeof(*id));
