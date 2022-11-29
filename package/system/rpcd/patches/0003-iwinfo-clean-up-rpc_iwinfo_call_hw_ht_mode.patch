@@ -1,0 +1,80 @@
+From b97b684a3109badd11d61f676af3e8ca3b4fe91d Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Wed, 23 Nov 2022 11:05:51 +0100
+Subject: [PATCH 3/6] iwinfo: clean up rpc_iwinfo_call_hw_ht_mode()
+
+There's no need to call hwmodelist() again, just pass on the earlier
+result.
+
+Signed-off-by: Andre Heider <a.heider@gmail.com>
+---
+ iwinfo.c | 23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
+
+diff --git a/iwinfo.c b/iwinfo.c
+index d417729..cdbb870 100644
+--- a/iwinfo.c
++++ b/iwinfo.c
+@@ -241,30 +241,28 @@ rpc_iwinfo_call_htmodes(const char *name)
+ 				false, 0);
+ }
+ 
+-static void
++static int
+ rpc_iwinfo_call_hwmodes(const char *name)
+ {
+ 	int modes;
+ 
+ 	if (iw->hwmodelist(ifname, &modes))
+-		return;
++		return -1;
+ 
+ 	rpc_iwinfo_add_bit_array(name, modes,
+ 				IWINFO_80211_NAMES, IWINFO_80211_COUNT,
+ 				false, 0);
++
++	return modes;
+ }
+ 
+-static void rpc_iwinfo_call_hw_ht_mode()
++static void rpc_iwinfo_call_hw_ht_mode(int hwmodelist)
+ {
+ 	const char *hwmode_str;
+ 	const char *htmode_str;
+-	int32_t htmode = 0;
+-	int modes;
++	int htmode;
+ 
+-	if (iw->hwmodelist(ifname, &modes))
+-		return;
+-
+-	if (modes == IWINFO_80211_AD)
++	if (hwmodelist == IWINFO_80211_AD)
+ 	{
+ 		blobmsg_add_string(&buf, "hwmode", "ad");
+ 		return;
+@@ -305,7 +303,7 @@ rpc_iwinfo_info(struct ubus_context *ctx, struct ubus_object *obj,
+                 struct ubus_request_data *req, const char *method,
+                 struct blob_attr *msg)
+ {
+-	int rv;
++	int rv, hwmodes;
+ 	void *c;
+ 
+ 	rv = rpc_iwinfo_open(msg);
+@@ -342,9 +340,10 @@ rpc_iwinfo_info(struct ubus_context *ctx, struct ubus_object *obj,
+ 
+ 	rpc_iwinfo_call_encryption("encryption");
+ 	rpc_iwinfo_call_htmodes("htmodes");
+-	rpc_iwinfo_call_hwmodes("hwmodes");
++	hwmodes = rpc_iwinfo_call_hwmodes("hwmodes");
+ 
+-	rpc_iwinfo_call_hw_ht_mode();
++	if (hwmodes > 0)
++		rpc_iwinfo_call_hw_ht_mode(hwmodes);
+ 
+ 	c = blobmsg_open_table(&buf, "hardware");
+ 	rpc_iwinfo_call_hardware_id("id");
+-- 
+2.35.1
+

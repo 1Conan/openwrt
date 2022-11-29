@@ -1,0 +1,58 @@
+From 459b36a0179b2c46a568a2a1c86046d6716d71f4 Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Mon, 21 Nov 2022 17:26:19 +0100
+Subject: [PATCH 25/39] lib: add IWINFO_80211_COUNT and IWINFO_80211_NAMES
+
+The same as with the other defines/enums which allow consumers to
+iterate over all known ones.
+
+Signed-off-by: Andre Heider <a.heider@gmail.com>
+---
+ include/iwinfo.h |  2 ++
+ iwinfo_lib.c     | 10 ++++++++++
+ 2 files changed, 12 insertions(+)
+
+diff --git a/include/iwinfo.h b/include/iwinfo.h
+index fee665c..e87ad18 100644
+--- a/include/iwinfo.h
++++ b/include/iwinfo.h
+@@ -30,6 +30,7 @@
+ #define IWINFO_80211_AC      (1 << 4)
+ #define IWINFO_80211_AD      (1 << 5)
+ #define IWINFO_80211_AX      (1 << 6)
++#define IWINFO_80211_COUNT   7
+ 
+ #define IWINFO_BAND_24       (1 << 0)
+ #define IWINFO_BAND_5        (1 << 1)
+@@ -69,6 +70,7 @@
+ #define IWINFO_FREQ_NO_160MHZ		(1 << 5)
+ #define IWINFO_FREQ_NO_HE		(1 << 6)
+ 
++extern const char * const IWINFO_80211_NAMES[IWINFO_80211_COUNT];
+ extern const char * const IWINFO_BAND_NAMES[IWINFO_BAND_COUNT];
+ extern const char * const IWINFO_CIPHER_NAMES[IWINFO_CIPHER_COUNT];
+ extern const char * const IWINFO_KMGMT_NAMES[IWINFO_KMGMT_COUNT];
+diff --git a/iwinfo_lib.c b/iwinfo_lib.c
+index 5163307..6a18939 100644
+--- a/iwinfo_lib.c
++++ b/iwinfo_lib.c
+@@ -22,6 +22,16 @@
+ /*
+  * name constants
+  */
++const char * const IWINFO_80211_NAMES[IWINFO_80211_COUNT] = {
++	"a",
++	"b",
++	"g",
++	"n",
++	"ac",
++	"ad",
++	"ax",
++};
++
+ const char * const IWINFO_BAND_NAMES[IWINFO_BAND_COUNT] = {
+ 	"2.4 GHz",
+ 	"5 GHz",
+-- 
+2.35.1
+

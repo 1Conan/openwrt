@@ -1,0 +1,28 @@
+From 9b3fde775676199dc8381589d6e05131a1fd4681 Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Wed, 23 Nov 2022 14:11:31 +0100
+Subject: [PATCH 01/39] enable useful compiler warnings via -Wall
+
+There's no reason not to.
+
+Signed-off-by: Andre Heider <a.heider@gmail.com>
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index 71b26d8..adb9e73 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ IWINFO_SOVERSION   = $(if $(SOVERSION),$(SOVERSION),0)
+ 
+ IWINFO_BACKENDS    = $(BACKENDS)
+-IWINFO_CFLAGS      = $(CFLAGS) -std=gnu99 -fstrict-aliasing -Iinclude
++IWINFO_CFLAGS      = $(CFLAGS) -Wall -std=gnu99 -fstrict-aliasing -Iinclude
+ IWINFO_LDFLAGS     = -luci -lubox -lubus
+ 
+ IWINFO_LIB         = libiwinfo.so
+-- 
+2.35.1
+

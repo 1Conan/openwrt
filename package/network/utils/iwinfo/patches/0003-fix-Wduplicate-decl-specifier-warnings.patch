@@ -1,0 +1,88 @@
+From 3f8b35a6eca5756e1ce07f1da7f09853c91c6bb3 Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Wed, 23 Nov 2022 14:11:58 +0100
+Subject: [PATCH 03/39] fix -Wduplicate-decl-specifier warnings
+
+include/iwinfo.h:209:19: warning: duplicate 'const' declaration specifier [-Wduplicate-decl-specifier]
+  209 | static const char const *ht_secondary_offset[4] = {
+      |                   ^~~~~
+
+Constify and move the offenders out of the header.
+
+Signed-off-by: Andre Heider <a.heider@gmail.com>
+---
+ include/iwinfo.h | 28 +++++++++-------------------
+ iwinfo_lib.c     | 18 ++++++++++++++++++
+ 2 files changed, 27 insertions(+), 19 deletions(-)
+
+diff --git a/include/iwinfo.h b/include/iwinfo.h
+index 576632d..f2d6d35 100644
+--- a/include/iwinfo.h
++++ b/include/iwinfo.h
+@@ -199,25 +199,15 @@ struct iwinfo_scanlist_vht_chan_entry {
+ 	uint8_t center_chan_2;
+ };
+ 
+-static const char *ht_secondary_offset[4] = {
+-	"no secondary",
+-	"above",
+-	"[reserved!]",
+-	"below",
+-};
+-
+-
+-static uint16_t ht_chan_width[2] = {
+-	20, /* 20 MHz */
+-	2040, /* 40 MHz or higher (refer to vht if supported) */
+-};
+-
+-static uint16_t vht_chan_width[] = {
+-	[0] = 40, /* 40 MHz or lower (refer to ht to a more precise width) */
+-	[1] = 80, /* 80 MHz */
+-	[3] = 8080, /* 80+80 MHz */
+-	[2] = 160, /* 160 MHz */
+-};
++extern const char * const ht_secondary_offset[4];
++/* 0 = 20 MHz
++   1 = 40 MHz or higher (refer to vht if supported) */
++extern const uint16_t ht_chan_width[2];
++/* 0 = 40 MHz or lower (refer to ht to a more precise width)
++   1 = 80 MHz
++   2 = 160 MHz
++   3 = 80+80 MHz */
++extern const uint16_t vht_chan_width[4];
+ 
+ struct iwinfo_scanlist_entry {
+ 	uint8_t mac[6];
+diff --git a/iwinfo_lib.c b/iwinfo_lib.c
+index 22571f0..e914484 100644
+--- a/iwinfo_lib.c
++++ b/iwinfo_lib.c
+@@ -78,6 +78,24 @@ const char *IWINFO_HTMODE_NAMES[] = {
+ 	"HE160"
+ };
+ 
++const char * const ht_secondary_offset[4] = {
++	"no secondary",
++	"above",
++	"[reserved!]",
++	"below",
++};
++
++const uint16_t ht_chan_width[2] = {
++	20,
++	2040,
++};
++
++const uint16_t vht_chan_width[4] = {
++	40, /* 40 MHz or lower (refer to ht to a more precise width) */
++	80, /* 80 MHz */
++	160, /* 160 MHz */
++	8080, /* 80+80 MHz */
++};
+ 
+ /*
+  * ISO3166 country labels
+-- 
+2.35.1
+

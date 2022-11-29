@@ -1,0 +1,28 @@
+From dce9942ae3cc768eb405788d063abc0643a201f9 Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Mon, 21 Nov 2022 10:58:14 +0100
+Subject: [PATCH 36/39] cli: use IWINFO_HTMODE_COUNT
+
+ARRAY_SIZE works too, but just the sake of consistency.
+
+Signed-off-by: Andre Heider <a.heider@gmail.com>
+---
+ iwinfo_cli.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/iwinfo_cli.c b/iwinfo_cli.c
+index b43c52e..7aa990c 100644
+--- a/iwinfo_cli.c
++++ b/iwinfo_cli.c
+@@ -814,7 +814,7 @@ static void print_htmodelist(const struct iwinfo_ops *iw, const char *ifname)
+ 		return;
+ 	}
+ 
+-	for (i = 0; i < ARRAY_SIZE(IWINFO_HTMODE_NAMES); i++)
++	for (i = 0; i < IWINFO_HTMODE_COUNT; i++)
+ 		if (htmodes & (1 << i))
+ 			printf("%s ", IWINFO_HTMODE_NAMES[i]);
+ 
+-- 
+2.35.1
+

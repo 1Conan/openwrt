@@ -1,0 +1,34 @@
+From eda511ea6e0fa7b72caadf31bad7d93862452eb4 Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Wed, 23 Nov 2022 11:32:26 +0100
+Subject: [PATCH 4/6] iwinfo: add "hwmodes_text" to the info output
+
+This is a preformatted string like "ac/ax/b/g/n" for presentation.
+
+Signed-off-by: Andre Heider <a.heider@gmail.com>
+---
+ iwinfo.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/iwinfo.c b/iwinfo.c
+index cdbb870..c93982f 100644
+--- a/iwinfo.c
++++ b/iwinfo.c
+@@ -258,10 +258,14 @@ rpc_iwinfo_call_hwmodes(const char *name)
+ 
+ static void rpc_iwinfo_call_hw_ht_mode(int hwmodelist)
+ {
++	char text[32];
+ 	const char *hwmode_str;
+ 	const char *htmode_str;
+ 	int htmode;
+ 
++	if (iwinfo_format_hwmodes(hwmodelist, text, sizeof(text)) > 0)
++		blobmsg_add_string(&buf, "hwmodes_text", text);
++
+ 	if (hwmodelist == IWINFO_80211_AD)
+ 	{
+ 		blobmsg_add_string(&buf, "hwmode", "ad");
+-- 
+2.35.1
+

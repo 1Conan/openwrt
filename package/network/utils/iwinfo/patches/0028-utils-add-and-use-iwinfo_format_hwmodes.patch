@@ -1,0 +1,96 @@
+From 5107abf3266ddb20eb72fc007316f26d4315187c Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Mon, 21 Nov 2022 17:27:20 +0100
+Subject: [PATCH 28/39] utils: add and use iwinfo_format_hwmodes()
+
+Unify how hwmodes are displayed, e.g.:
+"802.11ac/ax/b/g/n" instead of "802.11bgnacax".
+
+Luci currently uses a natural sort order, but that probably doesn't work
+as intended once "be" is added, so let's do this here.
+
+Signed-off-by: Andre Heider <a.heider@gmail.com>
+---
+ include/iwinfo/utils.h |  2 ++
+ iwinfo_cli.c           | 13 ++-----------
+ iwinfo_utils.c         | 25 +++++++++++++++++++++++++
+ 3 files changed, 29 insertions(+), 11 deletions(-)
+
+diff --git a/include/iwinfo/utils.h b/include/iwinfo/utils.h
+index 1fa4f52..6fe5785 100644
+--- a/include/iwinfo/utils.h
++++ b/include/iwinfo/utils.h
+@@ -43,6 +43,8 @@ static inline int iwinfo_mbm2dbm(int gain)
+ 	return gain / 100;
+ }
+ 
++size_t iwinfo_format_hwmodes(int modes, char *buf, size_t len);
++
+ int iwinfo_ifup(const char *ifname);
+ int iwinfo_ifdown(const char *ifname);
+ int iwinfo_ifmac(const char *ifname);
+diff --git a/iwinfo_cli.c b/iwinfo_cli.c
+index b533ffe..caefac6 100644
+--- a/iwinfo_cli.c
++++ b/iwinfo_cli.c
+@@ -282,19 +282,10 @@ static char * format_encryption(struct iwinfo_crypto_entry *c)
+ 
+ static char * format_hwmodes(int modes)
+ {
+-	static char buf[17];
++	static char buf[32] = "802.11";
+ 
+-	if (modes <= 0)
++	if (iwinfo_format_hwmodes(modes, buf + 6, sizeof(buf) - 6) < 1)
+ 		snprintf(buf, sizeof(buf), "unknown");
+-	else
+-		snprintf(buf, sizeof(buf), "802.11%s%s%s%s%s%s%s",
+-			(modes & IWINFO_80211_A) ? "a" : "",
+-			(modes & IWINFO_80211_B) ? "b" : "",
+-			(modes & IWINFO_80211_G) ? "g" : "",
+-			(modes & IWINFO_80211_N) ? "n" : "",
+-			(modes & IWINFO_80211_AC) ? "ac" : "",
+-			(modes & IWINFO_80211_AD) ? "ad" : "",
+-			(modes & IWINFO_80211_AX) ? "ax" : "");
+ 
+ 	return buf;
+ }
+diff --git a/iwinfo_utils.c b/iwinfo_utils.c
+index c15b305..63ae78c 100644
+--- a/iwinfo_utils.c
++++ b/iwinfo_utils.c
+@@ -77,6 +77,31 @@ int iwinfo_mw2dbm(int in)
+ 	return (int)res;
+ }
+ 
++size_t iwinfo_format_hwmodes(int modes, char *buf, size_t len)
++{
++	// bit numbers as per IWINFO_80211_*:  ad ac ax  a  b  g  n
++	const int order[IWINFO_80211_COUNT] = { 5, 4, 6, 0, 1, 2, 3 };
++	size_t res = 0;
++	int i;
++
++	*buf = 0;
++
++	if (!(modes & ((1 << IWINFO_80211_COUNT) - 1)))
++		return 0;
++
++	for (i = 0; i < IWINFO_80211_COUNT; i++)
++		if (modes & 1 << order[i])
++			res += snprintf(buf + res, len - res, "%s/", IWINFO_80211_NAMES[order[i]]);
++
++	if (res > 0)
++	{
++		res--;
++		buf[res] = 0;
++	}
++
++	return res;
++}
++
+ int iwinfo_ifup(const char *ifname)
+ {
+ 	struct ifreq ifr;
+-- 
+2.35.1
+

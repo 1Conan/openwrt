@@ -1,0 +1,29 @@
+From 36543ece7933bafce900c16706e86d31fbc59cf8 Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Wed, 23 Nov 2022 14:40:24 +0100
+Subject: [PATCH 07/39] fix -Wreturn-type warning
+
+The function doesn't return anything nor does any caller expect
+anything.
+
+Signed-off-by: Andre Heider <a.heider@gmail.com>
+---
+ iwinfo_nl80211.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/iwinfo_nl80211.c b/iwinfo_nl80211.c
+index c17aaa2..f852ed1 100644
+--- a/iwinfo_nl80211.c
++++ b/iwinfo_nl80211.c
+@@ -3052,7 +3052,7 @@ struct nl80211_modes
+ 	uint16_t he_phy_cap[6];
+ };
+ 
+-static int nl80211_eval_modelist(struct nl80211_modes *m)
++static void nl80211_eval_modelist(struct nl80211_modes *m)
+ {
+ 	/* Treat any nonzero capability as 11n */
+ 	if (m->nl_ht > 0)
+-- 
+2.35.1
+

@@ -1,0 +1,88 @@
+From c3171c2048a11a2e5e1cc0f89a0c0c406114bdbc Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Fri, 18 Nov 2022 12:29:44 +0100
+Subject: [PATCH 02/39] fix -Wformat-truncation warnings
+
+Increase buffer sizes to get rid of e.g.:
+iwinfo_nl80211.c:797:41: note: 'snprintf' output between 24 and 279 bytes into a destination of size 64
+
+Signed-off-by: Andre Heider <a.heider@gmail.com>
+---
+ iwinfo_cli.c     | 8 ++++----
+ iwinfo_nl80211.c | 6 +++---
+ 2 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/iwinfo_cli.c b/iwinfo_cli.c
+index dca86cf..1ca8999 100644
+--- a/iwinfo_cli.c
++++ b/iwinfo_cli.c
+@@ -46,7 +46,7 @@ static char * format_ssid(char *ssid)
+ 
+ static char * format_channel(int ch)
+ {
+-	static char buf[8];
++	static char buf[16];
+ 
+ 	if (ch <= 0)
+ 		snprintf(buf, sizeof(buf), "unknown");
+@@ -70,7 +70,7 @@ static char * format_frequency(int freq)
+ 
+ static char * format_txpower(int pwr)
+ {
+-	static char buf[10];
++	static char buf[16];
+ 
+ 	if (pwr < 0)
+ 		snprintf(buf, sizeof(buf), "unknown");
+@@ -82,7 +82,7 @@ static char * format_txpower(int pwr)
+ 
+ static char * format_quality(int qual)
+ {
+-	static char buf[8];
++	static char buf[16];
+ 
+ 	if (qual < 0)
+ 		snprintf(buf, sizeof(buf), "unknown");
+@@ -94,7 +94,7 @@ static char * format_quality(int qual)
+ 
+ static char * format_quality_max(int qmax)
+ {
+-	static char buf[8];
++	static char buf[16];
+ 
+ 	if (qmax < 0)
+ 		snprintf(buf, sizeof(buf), "unknown");
+diff --git a/iwinfo_nl80211.c b/iwinfo_nl80211.c
+index ba92530..d4d7538 100644
+--- a/iwinfo_nl80211.c
++++ b/iwinfo_nl80211.c
+@@ -240,7 +240,7 @@ static const char *nl80211_phy_path_str(const char *phyname)
+ 	int prefix_len = strlen(prefix);
+ 	int buf_len, offset;
+ 	struct dirent *e;
+-	char buf[128], *link;
++	char buf[512], *link;
+ 	int phy_idx;
+ 	int seq = 0;
+ 	DIR *d;
+@@ -297,7 +297,7 @@ static const char *nl80211_phy_path_str(const char *phyname)
+ 
+ static int nl80211_phy_idx_from_path(const char *path)
+ {
+-	char buf[128];
++	char buf[512];
+ 	struct dirent *e;
+ 	const char *cur_path;
+ 	int cur_path_len;
+@@ -736,7 +736,7 @@ nla_put_failure:
+ static char * nl80211_phy2ifname(const char *ifname)
+ {
+ 	int ifidx = -1, cifidx = -1, phyidx = -1;
+-	char buffer[64];
++	char buffer[512];
+ 	static char nif[IFNAMSIZ] = { 0 };
+ 
+ 	DIR *d;
+-- 
+2.35.1
+

@@ -1,0 +1,50 @@
+From e2b3693f61e945c5c0c133a255702d20acc11ad9 Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Wed, 23 Nov 2022 14:43:13 +0100
+Subject: [PATCH 08/39] fix -Wdangling-else warnings
+
+It's less confusing with braces.
+
+Signed-off-by: Andre Heider <a.heider@gmail.com>
+---
+ iwinfo_cli.c | 2 ++
+ iwinfo_lua.c | 2 ++
+ 2 files changed, 4 insertions(+)
+
+diff --git a/iwinfo_cli.c b/iwinfo_cli.c
+index 1ca8999..b533ffe 100644
+--- a/iwinfo_cli.c
++++ b/iwinfo_cli.c
+@@ -254,10 +254,12 @@ static char * format_encryption(struct iwinfo_crypto_entry *c)
+ 
+ 			for (i = 0; i < 3; i++)
+ 				if (c->wpa_version & (1 << i))
++				{
+ 					if (i)
+ 						pos += sprintf(pos, "WPA%d/", i + 1);
+ 					else
+ 						pos += sprintf(pos, "WPA/");
++				}
+ 
+ 			pos--;
+ 
+diff --git a/iwinfo_lua.c b/iwinfo_lua.c
+index 996f291..ecf257d 100644
+--- a/iwinfo_lua.c
++++ b/iwinfo_lua.c
+@@ -155,10 +155,12 @@ static char * iwinfo_crypto_desc(struct iwinfo_crypto_entry *c)
+ 
+ 				for (i = 0; i < 3; i++)
+ 					if (c->wpa_version & (1 << i))
++					{
+ 						if (i)
+ 							pos += sprintf(pos, "WPA%d/", i + 1);
+ 						else
+ 							pos += sprintf(pos, "WPA/");
++					}
+ 
+ 				pos--;
+ 
+-- 
+2.35.1
+

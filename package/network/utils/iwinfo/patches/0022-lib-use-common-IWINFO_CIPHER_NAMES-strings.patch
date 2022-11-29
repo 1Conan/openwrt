@@ -1,0 +1,35 @@
+From 0fddc299b28b72ca40b6533dbcfabeb062bc6478 Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Mon, 21 Nov 2022 09:49:05 +0100
+Subject: [PATCH 22/39] lib: use common IWINFO_CIPHER_NAMES strings
+
+Use a hyphen for the WEP cipher names, just as the others. Not that
+anyone cares anymore, but this let's us use this array instead of
+everyone fixing it up on their own.
+
+Signed-off-by: Andre Heider <a.heider@gmail.com>
+---
+ iwinfo_lib.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/iwinfo_lib.c b/iwinfo_lib.c
+index 353ecb8..7fbf811 100644
+--- a/iwinfo_lib.c
++++ b/iwinfo_lib.c
+@@ -24,11 +24,11 @@
+  */
+ const char * const IWINFO_CIPHER_NAMES[IWINFO_CIPHER_COUNT] = {
+ 	"NONE",
+-	"WEP40",
++	"WEP-40",
+ 	"TKIP",
+ 	"WRAP",
+ 	"CCMP",
+-	"WEP104",
++	"WEP-104",
+ 	"AES-OCB",
+ 	"CKIP",
+ 	"GCMP",
+-- 
+2.35.1
+

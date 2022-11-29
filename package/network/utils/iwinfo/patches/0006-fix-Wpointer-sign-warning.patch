@@ -1,0 +1,29 @@
+From f95281d531c55989fa69ee25a9f21d7d7d7c2132 Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Wed, 23 Nov 2022 14:38:37 +0100
+Subject: [PATCH 06/39] fix -Wpointer-sign warning
+
+sb.ssid is buf casted to unsigned char, just use that instead of casting
+it back.
+
+Signed-off-by: Andre Heider <a.heider@gmail.com>
+---
+ iwinfo_nl80211.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/iwinfo_nl80211.c b/iwinfo_nl80211.c
+index 0e339b5..c17aaa2 100644
+--- a/iwinfo_nl80211.c
++++ b/iwinfo_nl80211.c
+@@ -1234,7 +1234,7 @@ static int nl80211_get_ssid(const char *ifname, char *buf)
+ 	/* failed, try to obtain Mesh ID */
+ 	if (sb.ssid[0] == 0)
+ 		iwinfo_ubus_query(res ? res : ifname, "mesh_id",
+-		                  sb.ssid, IWINFO_ESSID_MAX_SIZE + 1);
++		                  buf, IWINFO_ESSID_MAX_SIZE + 1);
+ 
+ 	return (sb.ssid[0] == 0) ? -1 : 0;
+ }
+-- 
+2.35.1
+

@@ -1,0 +1,24 @@
+From 70efdee9cde0124c24f146a5dc920f43e765a382 Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Sun, 13 Nov 2022 15:39:27 +0100
+Subject: [PATCH 13/39] devices: add usb device MediaTek MT7921AU
+
+Add USB PID/VID as found on e.g. Comfast CF-953AX.
+
+Signed-off-by: Andre Heider <a.heider@gmail.com>
+---
+ devices.txt | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/devices.txt b/devices.txt
+index 8796276..7674f85 100644
+--- a/devices.txt
++++ b/devices.txt
+@@ -202,3 +202,4 @@
+ 0x1ae9 0x0310 0x1ae9 0x0000    0      0  "Wilocity" "Wil6210"
+ # USB devices
+ # 0x0000 | 0x0000 | vendor id | product id | ...
++0x0000 0x0000 0x0e8d 0x7961    0      0  "MediaTek" "MT7921AU"
+-- 
+2.35.1
+

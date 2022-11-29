@@ -1,0 +1,82 @@
+From cd5c57e2dcbcee58a03569bee5c9bfdf8bcc1b48 Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Tue, 22 Nov 2022 09:45:23 +0100
+Subject: [PATCH 30/39] utils: add helper functions to get names by values
+
+Some defines/enums use bits, while some functions only set a single one.
+Make it less painful to get to a name for those.
+
+This avoids hardcoding bit lists for consumers.
+
+Signed-off-by: Andre Heider <a.heider@gmail.com>
+---
+ include/iwinfo/utils.h |  3 +++
+ iwinfo_utils.c         | 38 ++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 41 insertions(+)
+
+diff --git a/include/iwinfo/utils.h b/include/iwinfo/utils.h
+index e9b8f1d..a7645de 100644
+--- a/include/iwinfo/utils.h
++++ b/include/iwinfo/utils.h
+@@ -43,6 +43,9 @@ static inline int iwinfo_mbm2dbm(int gain)
+ 	return gain / 100;
+ }
+ 
++const char * const iwinfo_band_name(int mask);
++const char * const iwinfo_htmode_name(int mask);
++
+ size_t iwinfo_format_hwmodes(int modes, char *buf, size_t len);
+ int iwinfo_htmode_is_ht(int htmode);
+ int iwinfo_htmode_is_vht(int htmode);
+diff --git a/iwinfo_utils.c b/iwinfo_utils.c
+index c7713ed..83f049a 100644
+--- a/iwinfo_utils.c
++++ b/iwinfo_utils.c
+@@ -77,6 +77,44 @@ int iwinfo_mw2dbm(int in)
+ 	return (int)res;
+ }
+ 
++static int iwinfo_bit(int value, int max)
++{
++	int i;
++
++	if (max > 31 || !(value & ((1 << max) - 1)))
++		return -1;
++
++	for (i = 0; i < max; i++)
++	{
++		if (value & 1)
++			break;
++
++		value >>= 1;
++	}
++
++	return i;
++}
++
++static const char * const iwinfo_name(int mask, int max, const char * const names[])
++{
++	int index = iwinfo_bit(mask, max);
++
++	if (index < 0)
++		return NULL;
++
++	return names[index];
++}
++
++const char * const iwinfo_band_name(int mask)
++{
++	return iwinfo_name(mask, IWINFO_BAND_COUNT, IWINFO_BAND_NAMES);
++}
++
++const char * const iwinfo_htmode_name(int mask)
++{
++	return iwinfo_name(mask, IWINFO_HTMODE_COUNT, IWINFO_HTMODE_NAMES);
++}
++
+ size_t iwinfo_format_hwmodes(int modes, char *buf, size_t len)
+ {
+ 	// bit numbers as per IWINFO_80211_*:  ad ac ax  a  b  g  n
+-- 
+2.35.1
+

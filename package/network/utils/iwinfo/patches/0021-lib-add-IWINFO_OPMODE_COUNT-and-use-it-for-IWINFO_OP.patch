@@ -1,0 +1,47 @@
+From 7de0bae0bb8f124edd1ee8adfba81ad7fbe2c129 Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Mon, 21 Nov 2022 10:11:13 +0100
+Subject: [PATCH 21/39] lib: add IWINFO_OPMODE_COUNT and use it for
+ IWINFO_OPMODE_NAMES
+
+Match the other string arrays, which allows us to consistently loop over them.
+
+Signed-off-by: Andre Heider <a.heider@gmail.com>
+---
+ include/iwinfo.h | 4 +++-
+ iwinfo_lib.c     | 2 +-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/include/iwinfo.h b/include/iwinfo.h
+index 90e5906..71fadab 100644
+--- a/include/iwinfo.h
++++ b/include/iwinfo.h
+@@ -84,9 +84,11 @@ enum iwinfo_opmode {
+ 	IWINFO_OPMODE_MESHPOINT  = 7,
+ 	IWINFO_OPMODE_P2P_CLIENT = 8,
+ 	IWINFO_OPMODE_P2P_GO     = 9,
++
++	IWINFO_OPMODE_COUNT      = 10,
+ };
+ 
+-extern const char * const IWINFO_OPMODE_NAMES[];
++extern const char * const IWINFO_OPMODE_NAMES[IWINFO_OPMODE_COUNT];
+ 
+ 
+ enum iwinfo_htmode {
+diff --git a/iwinfo_lib.c b/iwinfo_lib.c
+index 93d4b25..353ecb8 100644
+--- a/iwinfo_lib.c
++++ b/iwinfo_lib.c
+@@ -49,7 +49,7 @@ const char * const IWINFO_AUTH_NAMES[IWINFO_AUTH_COUNT] = {
+ 	"SHARED",
+ };
+ 
+-const char * const IWINFO_OPMODE_NAMES[] = {
++const char * const IWINFO_OPMODE_NAMES[IWINFO_OPMODE_COUNT] = {
+ 	"Unknown",
+ 	"Master",
+ 	"Ad-Hoc",
+-- 
+2.35.1
+

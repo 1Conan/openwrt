@@ -1,0 +1,26 @@
+From fb09d157f2054d66721b7aa99f7f4673c9fd9c23 Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Sat, 26 Nov 2022 16:15:16 +0100
+Subject: [PATCH 1/6] iwinfo: constify string map arg for rpc_iwinfo_call_int()
+
+Fixes the build since the string maps have been constified.
+---
+ iwinfo.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/iwinfo.c b/iwinfo.c
+index 38484c8..a4d8ec6 100644
+--- a/iwinfo.c
++++ b/iwinfo.c
+@@ -96,7 +96,7 @@ rpc_iwinfo_close(void)
+ 
+ static void
+ rpc_iwinfo_call_int(const char *name, int (*func)(const char *, int *),
+-                    const char **map)
++                    const char * const *map)
+ {
+ 	int rv;
+ 
+-- 
+2.35.1
+

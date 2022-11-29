@@ -1,0 +1,45 @@
+From 0ba2985e7f76a2a59d3879ddba7594d5e364f6d6 Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Mon, 21 Nov 2022 10:12:27 +0100
+Subject: [PATCH 35/39] cli: use IWINFO_KMGMT_NAMES
+
+There's no need to duplicate the strings or even miss new ones.
+
+Signed-off-by: Andre Heider <a.heider@gmail.com>
+---
+ iwinfo_cli.c | 18 ++++--------------
+ 1 file changed, 4 insertions(+), 14 deletions(-)
+
+diff --git a/iwinfo_cli.c b/iwinfo_cli.c
+index 944c6c8..b43c52e 100644
+--- a/iwinfo_cli.c
++++ b/iwinfo_cli.c
+@@ -160,21 +160,11 @@ static char * format_enc_suites(int suites)
+ {
+ 	static char str[64] = { 0 };
+ 	char *pos = str;
++	int i;
+ 
+-	if (suites & IWINFO_KMGMT_PSK)
+-		pos += sprintf(pos, "PSK/");
+-
+-	if (suites & IWINFO_KMGMT_8021x)
+-		pos += sprintf(pos, "802.1X/");
+-
+-	if (suites & IWINFO_KMGMT_SAE)
+-		pos += sprintf(pos, "SAE/");
+-
+-	if (suites & IWINFO_KMGMT_OWE)
+-		pos += sprintf(pos, "OWE/");
+-
+-	if (!suites || (suites & IWINFO_KMGMT_NONE))
+-		pos += sprintf(pos, "NONE/");
++	for (i = 0; i < IWINFO_KMGMT_COUNT; i++)
++		if (suites & (1 << i))
++			pos += sprintf(pos, "%s/", IWINFO_KMGMT_NAMES[i]);
+ 
+ 	*(pos - 1) = 0;
+ 
+-- 
+2.35.1
+

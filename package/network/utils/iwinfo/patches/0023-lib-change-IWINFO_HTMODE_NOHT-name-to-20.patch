@@ -1,0 +1,29 @@
+From ec5d3eec526e8ae8b7211af97899e9eaa438e7b2 Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Tue, 22 Nov 2022 09:09:18 +0100
+Subject: [PATCH 23/39] lib: change IWINFO_HTMODE_NOHT name to "20"
+
+Match the others modes to describe the channel width.
+This is what rpcd outputs for this mode too.
+
+Signed-off-by: Andre Heider <a.heider@gmail.com>
+---
+ iwinfo_lib.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/iwinfo_lib.c b/iwinfo_lib.c
+index 7fbf811..ca1b927 100644
+--- a/iwinfo_lib.c
++++ b/iwinfo_lib.c
+@@ -70,7 +70,7 @@ const char * const IWINFO_HTMODE_NAMES[IWINFO_HTMODE_COUNT] = {
+ 	"VHT80",
+ 	"VHT80+80",
+ 	"VHT160",
+-	"NOHT",
++	"20",
+ 	"HE20",
+ 	"HE40",
+ 	"HE80",
+-- 
+2.35.1
+

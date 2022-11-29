@@ -1,0 +1,106 @@
+From d90078b00d583cdf6382bbb94c95f55ac473e951 Mon Sep 17 00:00:00 2001
+From: Andre Heider <a.heider@gmail.com>
+Date: Mon, 21 Nov 2022 10:07:37 +0100
+Subject: [PATCH 20/39] lib: constify and fixup the string array definitions
+
+Match their declarations as per the header.
+
+Signed-off-by: Andre Heider <a.heider@gmail.com>
+---
+ include/iwinfo.h | 12 ++++++------
+ iwinfo_lib.c     | 10 +++++-----
+ 2 files changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/include/iwinfo.h b/include/iwinfo.h
+index 2965785..90e5906 100644
+--- a/include/iwinfo.h
++++ b/include/iwinfo.h
+@@ -68,9 +68,9 @@
+ #define IWINFO_FREQ_NO_160MHZ		(1 << 5)
+ #define IWINFO_FREQ_NO_HE		(1 << 6)
+ 
+-extern const char *IWINFO_CIPHER_NAMES[IWINFO_CIPHER_COUNT];
+-extern const char *IWINFO_KMGMT_NAMES[IWINFO_KMGMT_COUNT];
+-extern const char *IWINFO_AUTH_NAMES[IWINFO_AUTH_COUNT];
++extern const char * const IWINFO_CIPHER_NAMES[IWINFO_CIPHER_COUNT];
++extern const char * const IWINFO_KMGMT_NAMES[IWINFO_KMGMT_COUNT];
++extern const char * const IWINFO_AUTH_NAMES[IWINFO_AUTH_COUNT];
+ 
+ 
+ enum iwinfo_opmode {
+@@ -86,7 +86,7 @@ enum iwinfo_opmode {
+ 	IWINFO_OPMODE_P2P_GO     = 9,
+ };
+ 
+-extern const char *IWINFO_OPMODE_NAMES[];
++extern const char * const IWINFO_OPMODE_NAMES[];
+ 
+ 
+ enum iwinfo_htmode {
+@@ -107,7 +107,7 @@ enum iwinfo_htmode {
+ 	IWINFO_HTMODE_COUNT      = 13
+ };
+ 
+-extern const char *IWINFO_HTMODE_NAMES[IWINFO_HTMODE_COUNT];
++extern const char * const IWINFO_HTMODE_NAMES[IWINFO_HTMODE_COUNT];
+ 
+ 
+ struct iwinfo_rate_entry {
+@@ -229,7 +229,7 @@ struct iwinfo_country_entry {
+ 
+ struct iwinfo_iso3166_label {
+ 	uint16_t iso3166;
+-	char name[28];
++	const char name[28];
+ };
+ 
+ struct iwinfo_hardware_id {
+diff --git a/iwinfo_lib.c b/iwinfo_lib.c
+index e914484..93d4b25 100644
+--- a/iwinfo_lib.c
++++ b/iwinfo_lib.c
+@@ -22,7 +22,7 @@
+ /*
+  * name constants
+  */
+-const char *IWINFO_CIPHER_NAMES[] = {
++const char * const IWINFO_CIPHER_NAMES[IWINFO_CIPHER_COUNT] = {
+ 	"NONE",
+ 	"WEP40",
+ 	"TKIP",
+@@ -36,7 +36,7 @@ const char *IWINFO_CIPHER_NAMES[] = {
+ 	"GCMP-256",
+ };
+ 
+-const char *IWINFO_KMGMT_NAMES[] = {
++const char * const IWINFO_KMGMT_NAMES[IWINFO_KMGMT_COUNT] = {
+ 	"NONE",
+ 	"802.1X",
+ 	"PSK",
+@@ -44,12 +44,12 @@ const char *IWINFO_KMGMT_NAMES[] = {
+ 	"OWE",
+ };
+ 
+-const char *IWINFO_AUTH_NAMES[] = {
++const char * const IWINFO_AUTH_NAMES[IWINFO_AUTH_COUNT] = {
+ 	"OPEN",
+ 	"SHARED",
+ };
+ 
+-const char *IWINFO_OPMODE_NAMES[] = {
++const char * const IWINFO_OPMODE_NAMES[] = {
+ 	"Unknown",
+ 	"Master",
+ 	"Ad-Hoc",
+@@ -62,7 +62,7 @@ const char *IWINFO_OPMODE_NAMES[] = {
+ 	"P2P Go",
+ };
+ 
+-const char *IWINFO_HTMODE_NAMES[] = {
++const char * const IWINFO_HTMODE_NAMES[IWINFO_HTMODE_COUNT] = {
+ 	"HT20",
+ 	"HT40",
+ 	"VHT20",
+-- 
+2.35.1
+
