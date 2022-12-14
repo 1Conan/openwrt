@@ -318,6 +318,12 @@
  	case IEEE80211_AMPDU_RX_STOP:
  		if (priv->chip_type == MWL8964) {
  			struct mwl_ampdu_stream tmp;
+@@ -930,4 +931,5 @@ const struct ieee80211_ops mwl_mac80211_
+ 	.pre_channel_switch = mwl_mac80211_chnl_switch,
+ 	.sw_scan_start      = mwl_mac80211_sw_scan_start,
+ 	.sw_scan_complete   = mwl_mac80211_sw_scan_complete,
++	.wake_tx_queue	    = ieee80211_handle_wake_tx_queue,
+ };
 --- a/utils.c
 +++ b/utils.c
 @@ -173,9 +173,9 @@ u32 utils_get_init_tx_rate(struct mwl_pr
