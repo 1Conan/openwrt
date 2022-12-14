@@ -52,6 +52,7 @@ define Device/linksys_mr7350
 	PAGESIZE := 2048
 	SOC := ipq6018
 	DEVICE_PACKAGES := kmod-leds-pca963x \
-		kmod-usb3 kmod-usb-dwc3 kmod-usb-dwc3-qcom
+		kmod-usb3 kmod-usb-dwc3 kmod-usb-dwc3-qcom \
+		ipq-wifi-linksys_mr7350
 endef
 TARGET_DEVICES += linksys_mr7350
