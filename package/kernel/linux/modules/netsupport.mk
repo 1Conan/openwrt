@@ -91,7 +91,9 @@ define KernelPackage/vxlan
 	+kmod-udptunnel4 \
 	+IPV6:kmod-udptunnel6
   KCONFIG:=CONFIG_VXLAN
-  FILES:=$(LINUX_DIR)/drivers/net/vxlan.ko
+  FILES:= \
+	$(LINUX_DIR)/drivers/net/vxlan.ko@lt5.18 \
+	$(LINUX_DIR)/drivers/net/vxlan/vxlan.ko@ge5.18
   AUTOLOAD:=$(call AutoLoad,13,vxlan)
 endef
 
@@ -1204,7 +1206,7 @@ define KernelPackage/sctp
   FILES:= $(LINUX_DIR)/net/sctp/sctp.ko
   AUTOLOAD:= $(call AutoLoad,32,sctp)
   DEPENDS:=+kmod-lib-crc32c +kmod-crypto-md5 +kmod-crypto-hmac \
-    +LINUX_5_15:kmod-udptunnel4 +LINUX_5_15:kmod-udptunnel6
+    +(LINUX_5_15||LINUX_6_1):kmod-udptunnel4 +(LINUX_5_15||LINUX_6_1):kmod-udptunnel6
 endef
 
 define KernelPackage/sctp/description
@@ -1312,7 +1314,8 @@ define KernelPackage/9pnet
 	CONFIG_NET_9P \
 	CONFIG_NET_9P_DEBUG=n \
 	CONFIG_NET_9P_XEN=n \
-	CONFIG_NET_9P_VIRTIO
+	CONFIG_NET_9P_VIRTIO \
+	CONFIG_NET_9P_FD=n@ge5.17
   FILES:= \
 	$(LINUX_DIR)/net/9p/9pnet.ko \
 	$(LINUX_DIR)/net/9p/9pnet_virtio.ko
@@ -1460,11 +1463,11 @@ define KernelPackage/qrtr
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=Qualcomm IPC Router support
   HIDDEN:=1
-  DEPENDS:=@LINUX_5_15
+  DEPENDS:=@!LINUX_5_10
   KCONFIG:=CONFIG_QRTR
   FILES:= \
   $(LINUX_DIR)/net/qrtr/qrtr.ko \
-  $(LINUX_DIR)/net/qrtr/ns.ko
+  $(LINUX_DIR)/net/qrtr/ns.ko@lt5.16
   AUTOLOAD:=$(call AutoProbe,qrtr)
 endef
 
