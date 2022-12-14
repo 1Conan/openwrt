@@ -20,8 +20,8 @@ Subject: [PATCH] net/usb/qmi_wwan: add MeigLink modem support
  	{QMI_FIXED_INTF(0x0408, 0xea42, 4)},	/* Yota / Megafon M100-1 */
 --- a/drivers/usb/serial/option.c
 +++ b/drivers/usb/serial/option.c
-@@ -243,6 +243,8 @@ static void option_instat_callback(struc
- #define UBLOX_PRODUCT_R6XX			0x90fa
+@@ -244,6 +244,8 @@ static void option_instat_callback(struc
+ #define UBLOX_PRODUCT_R410M			0x90b2
  /* These Yuga products use Qualcomm's vendor ID */
  #define YUGA_PRODUCT_CLM920_NC5			0x9625
 +/* These MeigLink products use Qualcomm's vendor ID */
