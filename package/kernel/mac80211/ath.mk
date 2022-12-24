@@ -322,7 +322,7 @@ define KernelPackage/ath11k/config
        config ATH11K_THERMAL
                bool "Enable thermal sensors and throttling support"
                depends on PACKAGE_kmod-ath11k
-               default y if TARGET_ipq807x
+               default y if (TARGET_ipq807x || TARGET_ipq60xx)
 
        if PACKAGE_kmod-ath11k
 
