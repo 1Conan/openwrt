@@ -1,0 +1,43 @@
+From: Sascha Hauer <s.hauer@pengutronix.de>
+To: linux-wireless@vger.kernel.org
+Cc: Neo Jou <neojou@gmail.com>, Hans Ulli Kroll <linux@ulli-kroll.de>,
+	Ping-Ke Shih <pkshih@realtek.com>,
+	Yan-Hsuan Chuang <tony0620emma@gmail.com>,
+	Kalle Valo <kvalo@kernel.org>,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+	kernel@pengutronix.de, Alexander Hochbaum <alex@appudo.com>,
+	Da Xue <da@libre.computer>, Po-Hao Huang <phhuang@realtek.com>,
+	Viktor Petrenko <g0000ga@gmail.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>
+Subject: [PATCH v5 02/11] wifi: rtw88: Call rtw_fw_beacon_filter_config() with rtwdev->mutex held
+Date: Fri,  2 Dec 2022 09:12:15 +0100	[thread overview]
+Message-ID: <20221202081224.2779981-3-s.hauer@pengutronix.de> (raw)
+In-Reply-To: <20221202081224.2779981-1-s.hauer@pengutronix.de>
+
+rtw_fw_beacon_filter_config() is called once with rtwdev->mutex held
+and once without the mutex held. Call it consistently with rtwdev->mutex
+held.
+
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Reviewed-by: Ping-Ke Shih <pkshih@realtek.com>
+---
+ drivers/net/wireless/realtek/rtw88/mac80211.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/wireless/realtek/rtw88/mac80211.c b/drivers/net/wireless/realtek/rtw88/mac80211.c
+index 07578ccc4bab3..776a9a9884b5d 100644
+--- a/drivers/net/wireless/realtek/rtw88/mac80211.c
++++ b/drivers/net/wireless/realtek/rtw88/mac80211.c
+@@ -487,8 +487,8 @@ static int rtw_ops_sta_remove(struct ieee80211_hw *hw,
+ {
+ 	struct rtw_dev *rtwdev = hw->priv;
+ 
+-	rtw_fw_beacon_filter_config(rtwdev, false, vif);
+ 	mutex_lock(&rtwdev->mutex);
++	rtw_fw_beacon_filter_config(rtwdev, false, vif);
+ 	rtw_sta_remove(rtwdev, sta, true);
+ 	mutex_unlock(&rtwdev->mutex);
+ 
+-- 
+2.30.2
