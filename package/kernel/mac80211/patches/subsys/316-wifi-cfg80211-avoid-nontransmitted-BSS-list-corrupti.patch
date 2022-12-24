@@ -27,9 +27,9 @@ Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 
 --- a/net/wireless/scan.c
 +++ b/net/wireless/scan.c
-@@ -423,6 +423,15 @@ cfg80211_add_nontrans_list(struct cfg802
- 
- 	rcu_read_unlock();
+@@ -433,6 +433,15 @@ cfg80211_add_nontrans_list(struct cfg802
+ 	if (!list_empty(&nontrans_bss->nontrans_list))
+ 		return -EINVAL;
  
 +	/*
 +	 * This is a bit weird - it's not on the list, but already on another

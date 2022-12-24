@@ -14,11 +14,9 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
  drivers/net/wireless/ath/ath11k/pci.c | 5 +++++
  1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath11k/pci.c b/drivers/net/wireless/ath/ath11k/pci.c
-index 58a80f3..bfb1c8a 100644
 --- a/drivers/net/wireless/ath/ath11k/pci.c
 +++ b/drivers/net/wireless/ath/ath11k/pci.c
-@@ -370,6 +370,7 @@ static void ath11k_pci_sw_reset(struct ath11k_base *ab, bool power_on)
+@@ -370,6 +370,7 @@ static void ath11k_pci_sw_reset(struct a
  static void ath11k_pci_init_qmi_ce_config(struct ath11k_base *ab)
  {
  	struct ath11k_qmi_ce_cfg *cfg = &ab->qmi.ce_cfg;
@@ -26,7 +24,7 @@ index 58a80f3..bfb1c8a 100644
  
  	cfg->tgt_ce = ab->hw_params.target_ce_config;
  	cfg->tgt_ce_len = ab->hw_params.target_ce_count;
-@@ -378,6 +379,10 @@ static void ath11k_pci_init_qmi_ce_config(struct ath11k_base *ab)
+@@ -378,6 +379,10 @@ static void ath11k_pci_init_qmi_ce_confi
  	cfg->svc_to_ce_map_len = ab->hw_params.svc_to_ce_map_len;
  	ab->qmi.service_ins_id = ab->hw_params.qmi_service_ins_id;
  
@@ -37,6 +35,3 @@ index 58a80f3..bfb1c8a 100644
  	ath11k_ce_get_shadow_config(ab, &cfg->shadow_reg_v2,
  				    &cfg->shadow_reg_v2_len);
  }
--- 
-2.37.3
-

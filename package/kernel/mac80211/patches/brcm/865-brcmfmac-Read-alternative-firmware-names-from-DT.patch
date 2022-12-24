@@ -153,7 +153,7 @@ Signed-off-by: Phil Elwell <phil@raspberrypi.com>
  				       fwnames, ARRAY_SIZE(fwnames));
  	if (!fwreq)
  		return NULL;
-@@ -4435,6 +4458,9 @@ struct brcmf_sdio *brcmf_sdio_probe(stru
+@@ -4437,6 +4460,9 @@ struct brcmf_sdio *brcmf_sdio_probe(stru
  	struct brcmf_sdio *bus;
  	struct workqueue_struct *wq;
  	struct brcmf_fw_request *fwreq;
@@ -163,7 +163,7 @@ Signed-off-by: Phil Elwell <phil@raspberrypi.com>
  
  	brcmf_dbg(TRACE, "Enter\n");
  
-@@ -4517,6 +4543,21 @@ struct brcmf_sdio *brcmf_sdio_probe(stru
+@@ -4519,6 +4545,21 @@ struct brcmf_sdio *brcmf_sdio_probe(stru
  
  	brcmf_dbg(INFO, "completed!!\n");
  

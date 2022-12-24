@@ -24,8 +24,8 @@ Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 --- a/net/mac80211/util.c
 +++ b/net/mac80211/util.c
 @@ -1450,6 +1450,8 @@ static size_t ieee802_11_find_bssid_prof
- 	for_each_element_id(elem, WLAN_EID_MULTIPLE_BSSID, start, len) {
- 		if (elem->datalen < 2)
+ 			continue;
+ 		if (elem->data[0] < 1 || elem->data[0] > 8)
  			continue;
 +		if (elem->data[0] < 1 || elem->data[0] > 8)
 +			continue;
@@ -34,9 +34,9 @@ Signed-off-by: Johannes Berg <johannes.berg@intel.com>
  			u8 new_bssid[ETH_ALEN];
 --- a/net/wireless/scan.c
 +++ b/net/wireless/scan.c
-@@ -2143,6 +2143,8 @@ static void cfg80211_parse_mbssid_data(s
- 	for_each_element_id(elem, WLAN_EID_MULTIPLE_BSSID, ie, ielen) {
- 		if (elem->datalen < 4)
+@@ -2167,6 +2167,8 @@ static void cfg80211_parse_mbssid_data(s
+ 			continue;
+ 		if (elem->data[0] < 1 || (int)elem->data[0] > 8)
  			continue;
 +		if (elem->data[0] < 1 || (int)elem->data[0] > 8)
 +			continue;
