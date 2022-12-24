@@ -127,6 +127,15 @@
 		clock-names = "core", "iface";
 		status = "disabled";
 	};
+
+	tsens: thermal-sensor@4a9000 {
+		compatible = "qcom,ipq8074-tsens";
+		reg = <0x4a9000 0x1000>, /* TM */
+					<0x4a8000 0x1000>; /* SROT */
+		interrupts = <GIC_SPI 184 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-names = "combined";
+		#thermal-sensor-cells = <1>;
+	};
 };
 
 &tlmm {
