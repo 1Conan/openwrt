@@ -1,0 +1,18 @@
+--- a/drivers/net/wireless/ath/ath11k/core.c
++++ b/drivers/net/wireless/ath/ath11k/core.c
+@@ -169,9 +169,15 @@
+ 		.supports_sta_ps = false,
+ 		.cold_boot_calib = false,
+ 		.cbcal_restart_fw = true,
++#ifdef CPTCFG_ATH11K_MEM_PROFILE_1GB
+ 		.fw_mem_mode = 0,
+ 		.num_vdevs = 16 + 1,
+ 		.num_peers = 512,
++#elif CPTCFG_ATH11K_MEM_PROFILE_512MB
++		.fw_mem_mode = 1,
++		.num_vdevs = 8,
++		.num_peers = 128,
++#endif
+ 		.supports_suspend = false,
+ 		.hal_desc_sz = sizeof(struct hal_rx_desc_ipq8074),
+ 		.supports_regdb = false,
