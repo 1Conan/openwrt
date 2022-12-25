@@ -1,0 +1,326 @@
+From 0fcea83662a7bde91b825e944ec16c4f19ec8694 Mon Sep 17 00:00:00 2001
+From: Robert Marko <robimarko@gmail.com>
+Date: Thu, 29 Sep 2022 11:02:32 +0200
+Subject: [PATCH] swconfig: include headers for SSDK
+
+These are stricly for SSDK compatibility, swconfig will not be actually
+enabled.
+
+Signed-off-by: Robert Marko <robimarko@gmail.com>
+---
+ include/linux/switch.h      | 179 ++++++++++++++++++++++++++++++++++++
+ include/uapi/linux/switch.h | 119 ++++++++++++++++++++++++
+ 2 files changed, 298 insertions(+)
+ create mode 100644 include/linux/switch.h
+ create mode 100644 include/uapi/linux/switch.h
+
+diff --git a/include/linux/switch.h b/include/linux/switch.h
+new file mode 100644
+index 00000000000000..4e6238470d3062
+--- /dev/null
++++ b/include/linux/switch.h
+@@ -0,0 +1,179 @@
++/*
++ * switch.h: Switch configuration API
++ *
++ * Copyright (C) 2008 Felix Fietkau <nbd@nbd.name>
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++#ifndef _LINUX_SWITCH_H
++#define _LINUX_SWITCH_H
++
++#include <net/genetlink.h>
++#include <uapi/linux/switch.h>
++
++struct switch_dev;
++struct switch_op;
++struct switch_val;
++struct switch_attr;
++struct switch_attrlist;
++struct switch_led_trigger;
++
++int register_switch(struct switch_dev *dev, struct net_device *netdev);
++void unregister_switch(struct switch_dev *dev);
++
++/**
++ * struct switch_attrlist - attribute list
++ *
++ * @n_attr: number of attributes
++ * @attr: pointer to the attributes array
++ */
++struct switch_attrlist {
++	int n_attr;
++	const struct switch_attr *attr;
++};
++
++enum switch_port_speed {
++	SWITCH_PORT_SPEED_UNKNOWN = 0,
++	SWITCH_PORT_SPEED_10 = 10,
++	SWITCH_PORT_SPEED_100 = 100,
++	SWITCH_PORT_SPEED_1000 = 1000,
++};
++
++struct switch_port_link {
++	bool link;
++	bool duplex;
++	bool aneg;
++	bool tx_flow;
++	bool rx_flow;
++	enum switch_port_speed speed;
++	/* in ethtool adv_t format */
++	u32 eee;
++};
++
++struct switch_port_stats {
++	unsigned long long tx_bytes;
++	unsigned long long rx_bytes;
++};
++
++/**
++ * struct switch_dev_ops - switch driver operations
++ *
++ * @attr_global: global switch attribute list
++ * @attr_port: port attribute list
++ * @attr_vlan: vlan attribute list
++ *
++ * Callbacks:
++ *
++ * @get_vlan_ports: read the port list of a VLAN
++ * @set_vlan_ports: set the port list of a VLAN
++ *
++ * @get_port_pvid: get the primary VLAN ID of a port
++ * @set_port_pvid: set the primary VLAN ID of a port
++ *
++ * @apply_config: apply all changed settings to the switch
++ * @reset_switch: resetting the switch
++ */
++struct switch_dev_ops {
++	struct switch_attrlist attr_global, attr_port, attr_vlan;
++
++	int (*get_vlan_ports)(struct switch_dev *dev, struct switch_val *val);
++	int (*set_vlan_ports)(struct switch_dev *dev, struct switch_val *val);
++
++	int (*get_port_pvid)(struct switch_dev *dev, int port, int *val);
++	int (*set_port_pvid)(struct switch_dev *dev, int port, int val);
++
++	int (*apply_config)(struct switch_dev *dev);
++	int (*reset_switch)(struct switch_dev *dev);
++
++	int (*get_port_link)(struct switch_dev *dev, int port,
++			     struct switch_port_link *link);
++	int (*set_port_link)(struct switch_dev *dev, int port,
++			     struct switch_port_link *link);
++	int (*get_port_stats)(struct switch_dev *dev, int port,
++			      struct switch_port_stats *stats);
++
++	int (*phy_read16)(struct switch_dev *dev, int addr, u8 reg, u16 *value);
++	int (*phy_write16)(struct switch_dev *dev, int addr, u8 reg, u16 value);
++};
++
++struct switch_dev {
++	struct device_node *of_node;
++	const struct switch_dev_ops *ops;
++	/* will be automatically filled */
++	char devname[IFNAMSIZ];
++
++	const char *name;
++	/* NB: either alias or netdev must be set */
++	const char *alias;
++	struct net_device *netdev;
++
++	unsigned int ports;
++	unsigned int vlans;
++	unsigned int cpu_port;
++
++	/* the following fields are internal for swconfig */
++	unsigned int id;
++	struct list_head dev_list;
++	unsigned long def_global, def_port, def_vlan;
++
++	struct mutex sw_mutex;
++	struct switch_port *portbuf;
++	struct switch_portmap *portmap;
++	struct switch_port_link linkbuf;
++
++	char buf[128];
++
++#ifdef CONFIG_SWCONFIG_LEDS
++	struct switch_led_trigger *led_trigger;
++#endif
++};
++
++struct switch_port {
++	u32 id;
++	u32 flags;
++};
++
++struct switch_portmap {
++	u32 virt;
++	const char *s;
++};
++
++struct switch_val {
++	const struct switch_attr *attr;
++	unsigned int port_vlan;
++	unsigned int len;
++	union {
++		const char *s;
++		u32 i;
++		struct switch_port *ports;
++		struct switch_port_link *link;
++	} value;
++};
++
++struct switch_attr {
++	int disabled;
++	int type;
++	const char *name;
++	const char *description;
++
++	int (*set)(struct switch_dev *dev, const struct switch_attr *attr, struct switch_val *val);
++	int (*get)(struct switch_dev *dev, const struct switch_attr *attr, struct switch_val *val);
++
++	/* for driver internal use */
++	int id;
++	int ofs;
++	int max;
++};
++
++int switch_generic_set_link(struct switch_dev *dev, int port,
++			    struct switch_port_link *link);
++
++#endif /* _LINUX_SWITCH_H */
+diff --git a/include/uapi/linux/switch.h b/include/uapi/linux/switch.h
+new file mode 100644
+index 00000000000000..ea449653fafa57
+--- /dev/null
++++ b/include/uapi/linux/switch.h
+@@ -0,0 +1,119 @@
++/*
++ * switch.h: Switch configuration API
++ *
++ * Copyright (C) 2008 Felix Fietkau <nbd@nbd.name>
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++#ifndef _UAPI_LINUX_SWITCH_H
++#define _UAPI_LINUX_SWITCH_H
++
++#include <linux/types.h>
++#include <linux/netdevice.h>
++#include <linux/netlink.h>
++#include <linux/genetlink.h>
++#ifndef __KERNEL__
++#include <netlink/netlink.h>
++#include <netlink/genl/genl.h>
++#include <netlink/genl/ctrl.h>
++#endif
++
++/* main attributes */
++enum {
++	SWITCH_ATTR_UNSPEC,
++	/* global */
++	SWITCH_ATTR_TYPE,
++	/* device */
++	SWITCH_ATTR_ID,
++	SWITCH_ATTR_DEV_NAME,
++	SWITCH_ATTR_ALIAS,
++	SWITCH_ATTR_NAME,
++	SWITCH_ATTR_VLANS,
++	SWITCH_ATTR_PORTS,
++	SWITCH_ATTR_PORTMAP,
++	SWITCH_ATTR_CPU_PORT,
++	/* attributes */
++	SWITCH_ATTR_OP_ID,
++	SWITCH_ATTR_OP_TYPE,
++	SWITCH_ATTR_OP_NAME,
++	SWITCH_ATTR_OP_PORT,
++	SWITCH_ATTR_OP_VLAN,
++	SWITCH_ATTR_OP_VALUE_INT,
++	SWITCH_ATTR_OP_VALUE_STR,
++	SWITCH_ATTR_OP_VALUE_PORTS,
++	SWITCH_ATTR_OP_VALUE_LINK,
++	SWITCH_ATTR_OP_DESCRIPTION,
++	/* port lists */
++	SWITCH_ATTR_PORT,
++	SWITCH_ATTR_MAX
++};
++
++enum {
++	/* port map */
++	SWITCH_PORTMAP_PORTS,
++	SWITCH_PORTMAP_SEGMENT,
++	SWITCH_PORTMAP_VIRT,
++	SWITCH_PORTMAP_MAX
++};
++
++/* commands */
++enum {
++	SWITCH_CMD_UNSPEC,
++	SWITCH_CMD_GET_SWITCH,
++	SWITCH_CMD_NEW_ATTR,
++	SWITCH_CMD_LIST_GLOBAL,
++	SWITCH_CMD_GET_GLOBAL,
++	SWITCH_CMD_SET_GLOBAL,
++	SWITCH_CMD_LIST_PORT,
++	SWITCH_CMD_GET_PORT,
++	SWITCH_CMD_SET_PORT,
++	SWITCH_CMD_LIST_VLAN,
++	SWITCH_CMD_GET_VLAN,
++	SWITCH_CMD_SET_VLAN
++};
++
++/* data types */
++enum switch_val_type {
++	SWITCH_TYPE_UNSPEC,
++	SWITCH_TYPE_INT,
++	SWITCH_TYPE_STRING,
++	SWITCH_TYPE_PORTS,
++	SWITCH_TYPE_LINK,
++	SWITCH_TYPE_NOVAL,
++};
++
++/* port nested attributes */
++enum {
++	SWITCH_PORT_UNSPEC,
++	SWITCH_PORT_ID,
++	SWITCH_PORT_FLAG_TAGGED,
++	SWITCH_PORT_ATTR_MAX
++};
++
++/* link nested attributes */
++enum {
++	SWITCH_LINK_UNSPEC,
++	SWITCH_LINK_FLAG_LINK,
++	SWITCH_LINK_FLAG_DUPLEX,
++	SWITCH_LINK_FLAG_ANEG,
++	SWITCH_LINK_FLAG_TX_FLOW,
++	SWITCH_LINK_FLAG_RX_FLOW,
++	SWITCH_LINK_SPEED,
++	SWITCH_LINK_FLAG_EEE_100BASET,
++	SWITCH_LINK_FLAG_EEE_1000BASET,
++	SWITCH_LINK_ATTR_MAX,
++};
++
++#define SWITCH_ATTR_DEFAULTS_OFFSET	0x1000
++
++
++#endif /* _UAPI_LINUX_SWITCH_H */

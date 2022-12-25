@@ -1,4 +1,4 @@
-From e09c2545447f9ff9fbcd3fab90c3a5cab57b51bf Mon Sep 17 00:00:00 2001
+From d7bd8b611e973970d73927de953a81d2fcd1ff0e Mon Sep 17 00:00:00 2001
 From: Robert Marko <robimarko@gmail.com>
 Date: Tue, 11 Oct 2022 23:38:45 +0200
 Subject: [PATCH] clk: qcom: ipq6018: workaround networking clock parenting

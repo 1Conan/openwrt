@@ -1,7 +1,7 @@
-From 3d28dcdffb3642010a6a8f28e384baf95003e798 Mon Sep 17 00:00:00 2001
+From b53052995f40991a7c78787896ebb2cef1d7a002 Mon Sep 17 00:00:00 2001
 From: Robert Marko <robimarko@gmail.com>
 Date: Sat, 8 Oct 2022 22:26:31 +0200
-Subject: [PATCH 1013/1013] psci: dont advertise OSI support for IPQ6018
+Subject: [PATCH] psci: dont advertise OSI support for IPQ6018
 
 Some older IPQ60xx SoC series boards ship with TrustZone/QSEE firmware
 older than TZ.WNS.5.1-00084 which will advertise OSI[1] but are broken
@@ -18,10 +18,10 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
  1 file changed, 12 insertions(+)
 
 diff --git a/drivers/firmware/psci/psci.c b/drivers/firmware/psci/psci.c
-index cfb448eabdaa..658905bce78d 100644
+index e7bcfca4159f60..a12fd61e613e3d 100644
 --- a/drivers/firmware/psci/psci.c
 +++ b/drivers/firmware/psci/psci.c
-@@ -86,6 +86,18 @@ static inline bool psci_has_ext_power_state(void)
+@@ -87,6 +87,18 @@ static inline bool psci_has_ext_power_state(void)
  
  bool psci_has_osi_support(void)
  {
@@ -40,6 +40,3 @@ index cfb448eabdaa..658905bce78d 100644
  	return psci_cpu_suspend_feature & PSCI_1_0_OS_INITIATED;
  }
  
--- 
-2.37.1
-
