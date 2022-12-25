@@ -15,9 +15,11 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
  hal/dp_ops/syn_gmac_dp/syn_dp.c              | 4 ++--
  4 files changed, 7 insertions(+), 8 deletions(-)
 
+diff --git a/hal/dp_ops/edma_dp/edma_v1/edma_data_plane.c b/hal/dp_ops/edma_dp/edma_v1/edma_data_plane.c
+index 7008c94..5ab6bc6 100644
 --- a/hal/dp_ops/edma_dp/edma_v1/edma_data_plane.c
 +++ b/hal/dp_ops/edma_dp/edma_v1/edma_data_plane.c
-@@ -836,8 +836,7 @@ static int edma_register_netdevice(struc
+@@ -836,8 +836,7 @@ static int edma_register_netdevice(struct net_device *netdev, uint32_t macid)
  	 * NAPI add
  	 */
  	if (!edma_hw.napi_added) {
@@ -27,9 +29,11 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
  		/*
  		 * Register the interrupt handlers and enable interrupts
  		 */
+diff --git a/hal/dp_ops/edma_dp/edma_v2/edma_cfg_rx.c b/hal/dp_ops/edma_dp/edma_v2/edma_cfg_rx.c
+index e2bb97d..d49728b 100644
 --- a/hal/dp_ops/edma_dp/edma_v2/edma_cfg_rx.c
 +++ b/hal/dp_ops/edma_dp/edma_v2/edma_cfg_rx.c
-@@ -1394,8 +1394,8 @@ void edma_cfg_rx_napi_add(struct edma_gb
+@@ -1097,8 +1097,8 @@ void edma_cfg_rx_napi_add(struct edma_gbl_ctx *egc, struct net_device *netdev)
  
  	for (i = 0; i < egc->num_rxdesc_rings; i++) {
  		struct edma_rxdesc_ring *rxdesc_ring = &egc->rxdesc_rings[i];
@@ -40,9 +44,11 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
  		rxdesc_ring->napi_added = true;
  	}
  	edma_info("%s: Rx NAPI budget: %d\n", netdev->name, nss_dp_rx_napi_budget);
+diff --git a/hal/dp_ops/edma_dp/edma_v2/edma_cfg_tx.c b/hal/dp_ops/edma_dp/edma_v2/edma_cfg_tx.c
+index 4f9e298..fba224f 100644
 --- a/hal/dp_ops/edma_dp/edma_v2/edma_cfg_tx.c
 +++ b/hal/dp_ops/edma_dp/edma_v2/edma_cfg_tx.c
-@@ -714,8 +714,8 @@ void edma_cfg_tx_napi_add(struct edma_gb
+@@ -672,8 +672,8 @@ void edma_cfg_tx_napi_add(struct edma_gbl_ctx *egc, struct net_device *netdev)
  	for (i = 0; i < egc->num_txcmpl_rings; i++) {
  		struct edma_txcmpl_ring *txcmpl_ring = &egc->txcmpl_rings[i];
  
@@ -53,9 +59,11 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
  		txcmpl_ring->napi_added = true;
  	}
  	edma_info("Tx NAPI budget: %d\n", nss_dp_tx_napi_budget);
+diff --git a/hal/dp_ops/syn_gmac_dp/syn_dp.c b/hal/dp_ops/syn_gmac_dp/syn_dp.c
+index a3032b4..2f79fb9 100644
 --- a/hal/dp_ops/syn_gmac_dp/syn_dp.c
 +++ b/hal/dp_ops/syn_gmac_dp/syn_dp.c
-@@ -189,8 +189,8 @@ static int syn_dp_if_init(struct nss_dp_
+@@ -189,8 +189,8 @@ static int syn_dp_if_init(struct nss_dp_data_plane_ctx *dpc)
  	}
  
  	if (!dev_info->napi_added) {
@@ -66,3 +74,6 @@ Signed-off-by: Robert Marko <robimarko@gmail.com>
  
  		/*
  		 * Requesting irq. Set IRQ_DISABLE_UNLAZY flag, this flag
+-- 
+2.37.3
+
