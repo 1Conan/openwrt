@@ -5,6 +5,7 @@
 #include "ipq6018.dtsi"
 #include "ipq6018-upstreamable.dtsi"
 #include "ipq6018-ess.dtsi"
+#include "ipq6018-thermal.dtsi"
 
 #include <dt-bindings/input/input.h>
 #include <dt-bindings/gpio/gpio.h>
@@ -15,10 +16,11 @@
 
 	aliases {
 		serial0 = &blsp1_uart3;
-// 		led-boot = &led_power;
-// 		led-failsafe = &led_power;
-// 		led-running = &led_power;
-// 		led-upgrade = &led_power;
+		serial1 = &blsp1_uart2;
+ 		led-boot = &led_blue;
+ 		led-failsafe = &led_green;
+ 		led-running = &led_blue;
+ 		led-upgrade = &led_red;
 	};
 
 	chosen {
@@ -40,6 +42,15 @@
 			linux,code = <KEY_WPS_BUTTON>;
 		};
 	};
+};
+
+&blsp1_uart2 {
+	pinctrl-0 = <&serial_2_pins>;
+	pinctrl-names = "default";
+	dmas = <&blsp_dma 2>,
+	       <&blsp_dma 3>;
+	dma-names = "tx", "rx";
+	status = "ok";
 };
 
 &blsp1_uart3 {
@@ -233,15 +244,15 @@
 		#size-cells = <0>;
 		reg = <0x62>;
 
-		red@0 {
+		led_red: red@0 {
 			label = "red";
 			reg = <0>;
 		};
-		green@1 {
+		led_green: green@1 {
 			label = "green";
 			reg = <1>;
 		};
-		blue@2 {
+		led_blue: blue@2 {
 			label = "blue";
 			reg = <2>;
 		};
