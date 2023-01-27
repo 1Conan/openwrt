@@ -1,0 +1,27 @@
+From d3f7083960505b3983e4bd922760705bda21fd74 Mon Sep 17 00:00:00 2001
+From: Tatsuyuki Ishi <ishitatsuyuki@gmail.com>
+Date: Sat, 11 Jun 2022 01:05:00 +0900
+Subject: [PATCH 3/3] linkers: Add missing mold entries to __init__
+
+---
+ mesonbuild/linkers/__init__.py | 2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/mesonbuild/linkers/__init__.py
++++ b/mesonbuild/linkers/__init__.py
+@@ -43,6 +43,7 @@ from .linkers import (
+     GnuGoldDynamicLinker,
+     GnuBFDDynamicLinker,
+     LLVMDynamicLinker,
++    MoldDynamicLinker,
+     WASMDynamicLinker,
+     CcrxDynamicLinker,
+     Xc16DynamicLinker,
+@@ -101,6 +102,7 @@ __all__ = [
+     'GnuGoldDynamicLinker',
+     'GnuBFDDynamicLinker',
+     'LLVMDynamicLinker',
++    'MoldDynamicLinker',
+     'WASMDynamicLinker',
+     'CcrxDynamicLinker',
+     'Xc16DynamicLinker',
