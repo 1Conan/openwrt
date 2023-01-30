@@ -44,10 +44,22 @@ CONFIG_ARM_GIC_V3_ITS=y
 CONFIG_ARM_GIC_V3_ITS_PCI=y
 # CONFIG_ARM_MHU_V2 is not set
 CONFIG_ARM_PSCI_CPUIDLE=y
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:target/linux/ipq60xx/config-5.15
+CONFIG_ARM_PSCI_FW=y
+# CONFIG_ARM_QCOM_CPUFREQ_HW is not set
+# CONFIG_ARM_QCOM_CPUFREQ_NVMEM is not set
+========
+>>>>>>> upstream/master
 CONFIG_ARM_PSCI_CPUIDLE_DOMAIN=y
 CONFIG_ARM_PSCI_FW=y
 # CONFIG_ARM_QCOM_CPUFREQ_HW is not set
 CONFIG_ARM_QCOM_CPUFREQ_NVMEM=y
+<<<<<<< HEAD
+=======
+>>>>>>>> upstream/master:target/linux/ipq807x/config-5.15
+>>>>>>> upstream/master
 CONFIG_AUDIT_ARCH_COMPAT_GENERIC=y
 CONFIG_BLK_DEV_LOOP=y
 CONFIG_BLK_DEV_SD=y
@@ -78,7 +90,14 @@ CONFIG_CPU_FREQ_THERMAL=y
 CONFIG_CPU_IDLE=y
 CONFIG_CPU_IDLE_GOV_MENU=y
 CONFIG_CPU_IDLE_MULTIPLE_DRIVERS=y
+<<<<<<< HEAD
 CONFIG_CPU_LITTLE_ENDIAN=y
+=======
+<<<<<<<< HEAD:target/linux/ipq60xx/config-5.15
+========
+CONFIG_CPU_LITTLE_ENDIAN=y
+>>>>>>>> upstream/master:target/linux/ipq807x/config-5.15
+>>>>>>> upstream/master
 CONFIG_CPU_PM=y
 CONFIG_CPU_RMAP=y
 CONFIG_CPU_THERMAL=y
@@ -176,9 +195,22 @@ CONFIG_IIO=y
 CONFIG_ILLEGAL_POINTER_VALUE=0xdead000000000000
 CONFIG_INITRAMFS_SOURCE=""
 CONFIG_IPQ_APSS_6018=y
+<<<<<<< HEAD
 CONFIG_IPQ_APSS_PLL=y
 # CONFIG_IPQ_GCC_4019 is not set
 # CONFIG_IPQ_GCC_6018 is not set
+=======
+<<<<<<<< HEAD:target/linux/ipq60xx/config-5.15
+# CONFIG_IPQ_APSS_8074 is not set
+CONFIG_IPQ_APSS_PLL=y
+# CONFIG_IPQ_GCC_4019 is not set
+CONFIG_IPQ_GCC_6018=y
+========
+CONFIG_IPQ_APSS_PLL=y
+# CONFIG_IPQ_GCC_4019 is not set
+# CONFIG_IPQ_GCC_6018 is not set
+>>>>>>>> upstream/master:target/linux/ipq807x/config-5.15
+>>>>>>> upstream/master
 # CONFIG_IPQ_GCC_806X is not set
 CONFIG_IPQ_GCC_8074=y
 # CONFIG_IPQ_LCC_806X is not set
@@ -255,8 +287,18 @@ CONFIG_NO_HZ_IDLE=y
 CONFIG_NR_CPUS=4
 CONFIG_NVIDIA_CARMEL_CNP_ERRATUM=y
 CONFIG_NVMEM=y
+<<<<<<< HEAD
 CONFIG_NVMEM_QCOM_QFPROM=y
 # CONFIG_NVMEM_SPMI_SDAM is not set
+=======
+<<<<<<<< HEAD:target/linux/ipq60xx/config-5.15
+# CONFIG_NVMEM_QCOM_QFPROM is not set
+========
+CONFIG_NVMEM_QCOM_QFPROM=y
+>>>>>>>> upstream/master:target/linux/ipq807x/config-5.15
+# CONFIG_NVMEM_SPMI_SDAM is not set
+CONFIG_NVMEM_U_BOOT_ENV=y
+>>>>>>> upstream/master
 CONFIG_NVMEM_SYSFS=y
 CONFIG_OF=y
 CONFIG_OF_ADDRESS=y
@@ -301,7 +343,15 @@ CONFIG_PINCTRL=y
 # CONFIG_PINCTRL_APQ8064 is not set
 # CONFIG_PINCTRL_APQ8084 is not set
 # CONFIG_PINCTRL_IPQ4019 is not set
+<<<<<<< HEAD
 # CONFIG_PINCTRL_IPQ6018 is not set
+=======
+<<<<<<<< HEAD:target/linux/ipq60xx/config-5.15
+CONFIG_PINCTRL_IPQ6018=y
+========
+# CONFIG_PINCTRL_IPQ6018 is not set
+>>>>>>>> upstream/master:target/linux/ipq807x/config-5.15
+>>>>>>> upstream/master
 # CONFIG_PINCTRL_IPQ8064 is not set
 CONFIG_PINCTRL_IPQ8074=y
 # CONFIG_PINCTRL_MDM9615 is not set
@@ -325,8 +375,16 @@ CONFIG_PINCTRL_QCOM_SPMI_PMIC=y
 CONFIG_PM=y
 # CONFIG_PM8916_WATCHDOG is not set
 CONFIG_PM_CLK=y
+<<<<<<< HEAD
 CONFIG_PM_GENERIC_DOMAINS=y
 CONFIG_PM_GENERIC_DOMAINS_OF=y
+=======
+<<<<<<<< HEAD:target/linux/ipq60xx/config-5.15
+========
+CONFIG_PM_GENERIC_DOMAINS=y
+CONFIG_PM_GENERIC_DOMAINS_OF=y
+>>>>>>>> upstream/master:target/linux/ipq807x/config-5.15
+>>>>>>> upstream/master
 CONFIG_PM_OPP=y
 CONFIG_POWER_RESET=y
 # CONFIG_POWER_RESET_MSM is not set
@@ -343,12 +401,26 @@ CONFIG_QCOM_BAM_DMA=y
 # CONFIG_QCOM_CLK_APCC_MSM8996 is not set
 # CONFIG_QCOM_CLK_APCS_MSM8916 is not set
 # CONFIG_QCOM_CLK_APCS_SDX55 is not set
+<<<<<<< HEAD
+=======
+<<<<<<<< HEAD:target/linux/ipq60xx/config-5.15
+CONFIG_QCOM_CLK_SMD_RPM=y
+========
+>>>>>>>> upstream/master:target/linux/ipq807x/config-5.15
+>>>>>>> upstream/master
 # CONFIG_QCOM_COINCELL is not set
 # CONFIG_QCOM_COMMAND_DB is not set
 # CONFIG_QCOM_CPR is not set
 # CONFIG_QCOM_EBI2 is not set
 # CONFIG_QCOM_FASTRPC is not set
+<<<<<<< HEAD
 CONFIG_QCOM_GDSC=y
+=======
+<<<<<<<< HEAD:target/linux/ipq60xx/config-5.15
+========
+CONFIG_QCOM_GDSC=y
+>>>>>>>> upstream/master:target/linux/ipq807x/config-5.15
+>>>>>>> upstream/master
 # CONFIG_QCOM_GENI_SE is not set
 # CONFIG_QCOM_GSBI is not set
 # CONFIG_QCOM_HFPLL is not set
@@ -363,12 +435,33 @@ CONFIG_QCOM_Q6V5_COMMON=y
 # CONFIG_QCOM_Q6V5_MSS is not set
 # CONFIG_QCOM_Q6V5_PAS is not set
 CONFIG_QCOM_Q6V5_WCSS=y
+<<<<<<< HEAD
 # CONFIG_QCOM_RMTFS_MEM is not set
 # CONFIG_QCOM_RPMH is not set
+=======
+<<<<<<<< HEAD:target/linux/ipq60xx/config-5.15
+CONFIG_QCOM_QFPROM=y
+========
+>>>>>>>> upstream/master:target/linux/ipq807x/config-5.15
+# CONFIG_QCOM_RMTFS_MEM is not set
+CONFIG_QCOM_RPMCC=y
+# CONFIG_QCOM_RPMH is not set
+<<<<<<<< HEAD:target/linux/ipq60xx/config-5.15
+CONFIG_QCOM_RPMPD=y
+CONFIG_QCOM_RPROC_COMMON=y
+CONFIG_QCOM_SCM=y
+# CONFIG_QCOM_SCM_DOWNLOAD_MODE_DEFAULT is not set
+CONFIG_QCOM_SMD_RPM=y
+========
+>>>>>>> upstream/master
 CONFIG_QCOM_RPROC_COMMON=y
 CONFIG_QCOM_SCM=y
 # CONFIG_QCOM_SCM_DOWNLOAD_MODE_DEFAULT is not set
 # CONFIG_QCOM_SMD_RPM is not set
+<<<<<<< HEAD
+=======
+>>>>>>>> upstream/master:target/linux/ipq807x/config-5.15
+>>>>>>> upstream/master
 CONFIG_QCOM_SMEM=y
 CONFIG_QCOM_SMEM_STATE=y
 CONFIG_QCOM_SMP2P=y
@@ -395,9 +488,24 @@ CONFIG_REGULATOR=y
 CONFIG_REGULATOR_CPR3=y
 # CONFIG_REGULATOR_CPR3_NPU is not set
 CONFIG_REGULATOR_CPR4_APSS=y
+<<<<<<< HEAD
 # CONFIG_REGULATOR_QCOM_LABIBB is not set
 CONFIG_REGULATOR_QCOM_SPMI=y
 # CONFIG_REGULATOR_QCOM_USB_VBUS is not set
+=======
+<<<<<<<< HEAD:target/linux/ipq60xx/config-5.15
+CONFIG_REGULATOR_MP5416=y
+# CONFIG_REGULATOR_QCOM_LABIBB is not set
+CONFIG_REGULATOR_QCOM_SMD_RPM=y
+CONFIG_REGULATOR_QCOM_SPMI=y
+# CONFIG_REGULATOR_QCOM_USB_VBUS is not set
+CONFIG_REGULATOR_FIXED_VOLTAGE=y
+========
+# CONFIG_REGULATOR_QCOM_LABIBB is not set
+CONFIG_REGULATOR_QCOM_SPMI=y
+# CONFIG_REGULATOR_QCOM_USB_VBUS is not set
+>>>>>>>> upstream/master:target/linux/ipq807x/config-5.15
+>>>>>>> upstream/master
 # CONFIG_REGULATOR_VQMMC_IPQ4019 is not set
 CONFIG_RELOCATABLE=y
 CONFIG_REMOTEPROC=y

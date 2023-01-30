@@ -1,7 +1,7 @@
 PART_NAME=firmware
 REQUIRE_IMAGE_METADATA=1
 
-RAMFS_COPY_BIN='fw_printenv fw_setenv'
+RAMFS_COPY_BIN='fw_printenv fw_setenv head'
 RAMFS_COPY_DATA='/etc/fw_env.config /var/lock/fw_printenv.lock'
 
 xiaomi_initramfs_prepare() {
@@ -66,18 +66,33 @@ platform_do_upgrade() {
 		rootfsname="rootfs"
 		mmc_do_upgrade "$1"
 		;;
+	zyxel,nbg7815)
+		local config_mtdnum="$(find_mtd_index 0:bootconfig)"
+		[ -z "$config_mtdnum" ] && reboot
+		part_num="$(hexdump -e '1/1 "%01x|"' -n 1 -s 168 -C /dev/mtd$config_mtdnum | cut -f 1 -d "|" | head -n1)"
+		if [ "$part_num" -eq "0" ]; then
+			kernelname="0:HLOS"
+			rootfsname="rootfs"
+			mmc_do_upgrade "$1"
+		else
+			kernelname="0:HLOS_1"
+			rootfsname="rootfs_1"
+			mmc_do_upgrade "$1"
+		fi
+		;;
 	redmi,ax6|\
 	xiaomi,ax3600|\
 	xiaomi,ax9000)
+		# Make sure that UART is enabled
+		fw_setenv boot_wait on
+		fw_setenv uart_en 1
+
 		# Enforce single partition.
 		fw_setenv flag_boot_rootfs 0
 		fw_setenv flag_last_success 0
-		fw_setenv flag_boot_success 0
-		fw_setenv flag_try_sys1_failed 0
-
-		# Second partition won't work and can't be used
-		# Flag it as failed by default
-		fw_setenv flag_try_sys2_failed 1
+		fw_setenv flag_boot_success 1
+		fw_setenv flag_try_sys1_failed 8
+		fw_setenv flag_try_sys2_failed 8
 
 		# Kernel and rootfs are placed in 2 different UBI
 		CI_KERN_UBIPART="ubi_kernel"

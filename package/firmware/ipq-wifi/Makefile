@@ -39,6 +39,7 @@ ALLWIFIBOARDS:= \
 	glinet_gl-s1300 \
 	linksys_ea8300 \
   linksys_mr7350 \
+  linksys_whw03v2 \
 	netgear_sxk30 \
 	netgear_wax610 \
 	p2w_r619ac \
@@ -51,7 +52,9 @@ ALLWIFIBOARDS:= \
 	teltonika_rutx \
 	xiaomi_ax3600 \
 	xiaomi_ax9000 \
-	zte_mf289f
+	zte_mf18a \
+	zte_mf289f \
+	zyxel_nbg7815
 
 ALLWIFIPACKAGES:=$(foreach BOARD,$(ALLWIFIBOARDS),ipq-wifi-$(BOARD))
 
@@ -59,7 +62,7 @@ define Package/ipq-wifi-default
   SUBMENU:=ath10k/ath11k Board-Specific Overrides
   SECTION:=firmware
   CATEGORY:=Firmware
-  DEPENDS:=@(TARGET_ipq40xx||TARGET_ipq806x||TARGET_ipq807x||TARGET_ipq60xx)
+  DEPENDS:=@(TARGET_ipq40xx||TARGET_ipq60xx||TARGET_ipq806x||TARGET_ipq807x)
   TITLE:=Custom Board
 endef
 
@@ -78,18 +81,22 @@ define ipq-wifi-install-one
     $(call ipq-wifi-install-one-to,$(1),$(2),QCA4019/hw1.0),\
   $(if $(filter $(suffix $(1)),.QCA9888 .qca9888),\
     $(call ipq-wifi-install-one-to,$(1),$(2),QCA9888/hw2.0),\
+  $(if $(filter $(suffix $(1)),.QCA9889 .qca9889),\
+    $(call ipq-wifi-install-one-to,$(1),$(2),QCA9887/hw1.0),\
   $(if $(filter $(suffix $(1)),.QCA9984 .qca9984),\
     $(call ipq-wifi-install-one-to,$(1),$(2),QCA9984/hw1.0),\
   $(if $(filter $(suffix $(1)),.QCA9889 .qca9889),\
     $(call ipq-wifi-install-one-to,$(1),$(2),QCA9887/hw1.0),\
   $(if $(filter $(suffix $(1)),.IPQ6018 .ipq6018),\
     $(call ipq-wifi-install-ath11-one-to,$(1),$(2),IPQ6018/hw1.0),\
+  $(if $(filter $(suffix $(1)),.QCA99X0 .qca99x0),\
+    $(call ipq-wifi-install-one-to,$(1),$(2),QCA99X0/hw2.0),\
   $(if $(filter $(suffix $(1)),.IPQ8074 .ipq8074),\
     $(call ipq-wifi-install-ath11-one-to,$(1),$(2),IPQ8074/hw2.0),\
   $(if $(filter $(suffix $(1)),.QCN9074 .qcn9074),\
     $(call ipq-wifi-install-ath11-one-to,$(1),$(2),QCN9074/hw1.0),\
     $(error Unrecognized board-file suffix '$(suffix $(1))' for '$(1)')\
-  )))))))
+  )))))))))
 
 endef
 # Blank line required at end of above define due to foreach context
@@ -122,7 +129,7 @@ Do not install it for any other device!
 endef
 
 # Add board name to ALLWIFIBOARDS
-# Place files in this directory as board-<devicename>.<qca4019|qca9888|qca9984>
+# Place files in this directory as board-<devicename>.<qca4019|qca9888|qca9889|qca9984|qca99x0|ipq8074>
 # Add $(eval $(call generate-ipq-wifi-package,<devicename>,<display name>))
 
 $(eval $(call generate-ipq-wifi-package,aruba_ap-365,Aruba AP-365))
@@ -139,6 +146,7 @@ $(eval $(call generate-ipq-wifi-package,glinet_gl-ax1800,GL.iNet GL-AX1800))
 $(eval $(call generate-ipq-wifi-package,glinet_gl-s1300,GL.iNet GL-S1300))
 $(eval $(call generate-ipq-wifi-package,linksys_ea8300,Linksys EA8300))
 $(eval $(call generate-ipq-wifi-package,linksys_mr7350,Linksys MR7350))
+$(eval $(call generate-ipq-wifi-package,linksys_whw03v2,Linksys WHW03 V2))
 $(eval $(call generate-ipq-wifi-package,netgear_sxk30,Netgear SXK30))
 $(eval $(call generate-ipq-wifi-package,netgear_wax610,Netgear WAX610))
 $(eval $(call generate-ipq-wifi-package,p2w_r619ac,P&W R619AC))
@@ -151,6 +159,8 @@ $(eval $(call generate-ipq-wifi-package,sony_ncp-hg100-cellular,Sony NCP-HG100/C
 $(eval $(call generate-ipq-wifi-package,teltonika_rutx,Teltonika RUTX))
 $(eval $(call generate-ipq-wifi-package,xiaomi_ax3600,Xiaomi AX3600))
 $(eval $(call generate-ipq-wifi-package,xiaomi_ax9000,Xiaomi AX9000))
+$(eval $(call generate-ipq-wifi-package,zte_mf18a,ZTE MF18A))
 $(eval $(call generate-ipq-wifi-package,zte_mf289f,ZTE MF289F))
+$(eval $(call generate-ipq-wifi-package,zyxel_nbg7815,Zyxel NBG7815))
 
 $(foreach PACKAGE,$(ALLWIFIPACKAGES),$(eval $(call BuildPackage,$(PACKAGE))))
