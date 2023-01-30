@@ -53,6 +53,20 @@ define Device/glinet_gl-ax1800
 endef
 TARGET_DEVICES += glinet_gl-ax1800
 
+define Device/linksys_mr7350
+	$(call Device/FitImage)
+	$(call Device/UbiFit)
+	DEVICE_VENDOR := Linksys
+	DEVICE_MODEL := MR7350
+	BLOCKSIZE := 128k
+	PAGESIZE := 2048
+	SOC := ipq6018
+	DEVICE_PACKAGES := kmod-leds-pca963x \
+		kmod-usb3 kmod-usb-dwc3 kmod-usb-dwc3-qcom \
+		ipq-wifi-linksys_mr7350
+endef
+TARGET_DEVICES += linksys_mr7350
+
 define Device/netgear_sxk30
 	$(call Device/FitImage)
 	$(call Device/UbiFit)

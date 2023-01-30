@@ -311,7 +311,7 @@ ifeq ($(CONFIG_TARGET_BOARD), "ipq807x")
    MODPARAMS.ath11k:=frame_mode=2
 else ifeq ($(CONFIG_TARGET_BOARD), "ipq60xx")
     AUTOLOAD:=$(call AutoProbe,ath11k)
-    MODPARAMS.ath11k:=frame_mode=1
+    MODPARAMS.ath11k:=frame_mode=2
 endif
 endef
 

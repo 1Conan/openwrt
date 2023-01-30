@@ -38,6 +38,7 @@ ALLWIFIBOARDS:= \
 	glinet_gl-ax1800 \
 	glinet_gl-s1300 \
 	linksys_ea8300 \
+  linksys_mr7350 \
 	netgear_sxk30 \
 	netgear_wax610 \
 	p2w_r619ac \
@@ -55,7 +56,7 @@ ALLWIFIBOARDS:= \
 ALLWIFIPACKAGES:=$(foreach BOARD,$(ALLWIFIBOARDS),ipq-wifi-$(BOARD))
 
 define Package/ipq-wifi-default
-  SUBMENU:=ath10k Board-Specific Overrides
+  SUBMENU:=ath10k/ath11k Board-Specific Overrides
   SECTION:=firmware
   CATEGORY:=Firmware
   DEPENDS:=@(TARGET_ipq40xx||TARGET_ipq806x||TARGET_ipq807x||TARGET_ipq60xx)
@@ -137,6 +138,7 @@ $(eval $(call generate-ipq-wifi-package,glinet_gl-ap1300,GL.iNet GL-AP1300))
 $(eval $(call generate-ipq-wifi-package,glinet_gl-ax1800,GL.iNet GL-AX1800))
 $(eval $(call generate-ipq-wifi-package,glinet_gl-s1300,GL.iNet GL-S1300))
 $(eval $(call generate-ipq-wifi-package,linksys_ea8300,Linksys EA8300))
+$(eval $(call generate-ipq-wifi-package,linksys_mr7350,Linksys MR7350))
 $(eval $(call generate-ipq-wifi-package,netgear_sxk30,Netgear SXK30))
 $(eval $(call generate-ipq-wifi-package,netgear_wax610,Netgear WAX610))
 $(eval $(call generate-ipq-wifi-package,p2w_r619ac,P&W R619AC))
