@@ -1,0 +1,39 @@
+--- a/Makefile
++++ b/Makefile
+@@ -1354,8 +1354,16 @@
+ 
+ # *** AUTODETECT ***
+ ifeq ($(CONFIG_PLATFORM_AUTODETECT), y)
++ifdef EXT_EXTRA_CFLAGS
++EXTRA_CFLAGS += $(EXT_EXTRA_CFLAGS)
++else
+ EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
+ EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
++endif
++ifndef ARCH
++SUBARCH := $(shell uname -m | sed -e s/i.86/i386/ | sed -e s/aarch64/arm64/)
++ARCH ?= $(SUBARCH)
++else
+ 
+ SUBARCH := $(shell uname -m)
+ 
+@@ -1372,11 +1380,20 @@
+ endif
+ 
+ ARCH ?= $(SUBARCH)
++endif
+ 
++ifndef CROSS_COMPILE
+ CROSS_COMPILE ?=
++endif
++ifndef KVER
+ KVER ?= $(shell uname -r)
++endif1
++ifndef KSRC
+ KSRC := /lib/modules/$(KVER)/build
++endif
++ifndef MODDESTDIR
+ MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
++endif
+ INSTALL_PREFIX :=
+ STAGINGMODDIR := /lib/modules/$(KVER)/kernel/drivers/staging
