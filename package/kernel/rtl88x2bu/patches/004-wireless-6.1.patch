@@ -57,18 +57,18 @@ index 38f1aa1..7c1862f 100644
  #endif
  	u8 key_index)
 diff --git a/os_dep/linux/os_intfs.c b/os_dep/linux/os_intfs.c
-index 7b25f29..04853e0 100644
+index 7b25f29..fce5040 100644
 --- a/os_dep/linux/os_intfs.c
 +++ b/os_dep/linux/os_intfs.c
-@@ -2154,7 +2154,7 @@ int rtw_os_ndev_register(_adapter *adapter, const char *name)
- 	u8 rtnl_lock_needed = rtw_rtnl_lock_needed(dvobj);
- 
+@@ -2156,6 +2156,8 @@ int rtw_os_ndev_register(_adapter *adapter, const char *name)
  #ifdef CONFIG_RTW_NAPI
--#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0))
-+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0) || defined(BUILD_OPENWRT))
+ #if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0))
  	netif_napi_add_weight(ndev, &adapter->napi, rtw_recv_napi_poll, RTL_NAPI_WEIGHT);
++#elif defined(BUILD_OPENWRT)
++	netif_napi_add(ndev, &adapter->napi, rtw_recv_napi_poll);
  #else
  	netif_napi_add(ndev, &adapter->napi, rtw_recv_napi_poll, RTL_NAPI_WEIGHT);
+ #endif
 diff --git a/os_dep/osdep_service.c b/os_dep/osdep_service.c
 index 3b927f4..5c5d903 100644
 --- a/os_dep/osdep_service.c
