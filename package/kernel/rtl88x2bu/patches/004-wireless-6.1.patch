@@ -1,5 +1,5 @@
 diff --git a/os_dep/linux/ioctl_cfg80211.c b/os_dep/linux/ioctl_cfg80211.c
-index 38f1aa1..6229f6f 100644
+index 38f1aa1..96b2ae8 100644
 --- a/os_dep/linux/ioctl_cfg80211.c
 +++ b/os_dep/linux/ioctl_cfg80211.c
 @@ -464,7 +464,7 @@ u8 rtw_cfg80211_ch_switch_notify(_adapter *adapter, u8 ch, u8 bw, u8 offset,
@@ -29,6 +29,15 @@ index 38f1aa1..6229f6f 100644
  	cfg80211_ch_switch_notify(adapter->pnetdev, freq, ctype, 0);
  #else
  	cfg80211_ch_switch_notify(adapter->pnetdev, freq, ctype);
+@@ -1151,7 +1151,7 @@ check_bss:
+ 		#endif
+ 
+ 		#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12, 0)
+-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 0, 0))
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 0, 0) || defined(BUILD_OPENWRT))
+ 		roam_info.links[0].bssid = cur_network->network.MacAddress;
+ #else
+ 		roam_info.bssid = cur_network->network.MacAddress;
 @@ -1915,7 +1915,7 @@ exit:
  }
  
