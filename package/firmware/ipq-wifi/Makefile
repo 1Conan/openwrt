@@ -6,7 +6,7 @@ PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL=$(PROJECT_GIT)/project/firmware/qca-wireless.git
-PKG_SOURCE_DATE:=2023-03-18
+PKG_SOURCE_DATE:=2023-03-19
 PKG_SOURCE_VERSION:=31ff96d9f99f993cb43d79f0c411fe6bf55633bb
 PKG_MIRROR_HASH:=8005a884059925a627024b9022ed06a36ebf4ed7a20e8aab191585afbdd6895f
 
@@ -45,6 +45,7 @@ ALLWIFIBOARDS:= \
 	linksys_ea8300 \
 	linksys_whw03v2 \
 	netgear_wax218 \
+	nokia_ac400i \
 	p2w_r619ac \
 	pakedge_wr-1 \
 	qnap_301w \
@@ -148,6 +149,7 @@ $(eval $(call generate-ipq-wifi-package,glinet_gl-s1300,GL.iNet GL-S1300))
 $(eval $(call generate-ipq-wifi-package,linksys_ea8300,Linksys EA8300))
 $(eval $(call generate-ipq-wifi-package,linksys_whw03v2,Linksys WHW03 V2))
 $(eval $(call generate-ipq-wifi-package,netgear_wax218,Netgear WAX218))
+$(eval $(call generate-ipq-wifi-package,nokia_ac400i,Nokia AC400i))
 $(eval $(call generate-ipq-wifi-package,p2w_r619ac,P&W R619AC))
 $(eval $(call generate-ipq-wifi-package,pakedge_wr-1,Pakedge WR-1))
 $(eval $(call generate-ipq-wifi-package,qnap_301w,QNAP 301w))
