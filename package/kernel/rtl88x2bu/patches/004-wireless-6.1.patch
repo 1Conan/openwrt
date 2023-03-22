@@ -1,0 +1,165 @@
+Index: rtl88x2bu-2023-03-21-f0a2c9c7/os_dep/linux/ioctl_cfg80211.c
+===================================================================
+--- rtl88x2bu-2023-03-21-f0a2c9c7.orig/os_dep/linux/ioctl_cfg80211.c
++++ rtl88x2bu-2023-03-21-f0a2c9c7/os_dep/linux/ioctl_cfg80211.c
+@@ -464,7 +464,7 @@ u8 rtw_cfg80211_ch_switch_notify(_adapte
+ 		 *  called by others with block-tx.
+ 		 */
+ 
+-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0))
++#if ((LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)) || defined(BUILD_OPENWRT))
+ #if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0))
+ 		cfg80211_ch_switch_started_notify(adapter->pnetdev, &chdef, 0, 0, false, 0);
+ #else
+@@ -483,7 +483,7 @@ u8 rtw_cfg80211_ch_switch_notify(_adapte
+ 	if (!rtw_cfg80211_allow_ch_switch_notify(adapter))
+ 		goto exit;
+ 
+-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 19, 2))
++#if ((LINUX_VERSION_CODE >= KERNEL_VERSION(5, 19, 2)) || defined(BUILD_OPENWRT))
+ #if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0))
+ 	cfg80211_ch_switch_notify(adapter->pnetdev, &chdef, 0, 0);
+ #else
+@@ -506,7 +506,7 @@ u8 rtw_cfg80211_ch_switch_notify(_adapte
+ 	}
+ 
+ 	ctype = rtw_chbw_to_nl80211_channel_type(ch, bw, offset, ht);
+-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 19, 2))
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 19, 2) || defined(BUILD_OPENWRT))
+ 	cfg80211_ch_switch_notify(adapter->pnetdev, freq, ctype, 0);
+ #else
+ 	cfg80211_ch_switch_notify(adapter->pnetdev, freq, ctype);
+@@ -1159,7 +1159,7 @@ check_bss:
+ 		#endif
+ 
+ 		#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12, 0)
+-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 0, 0))
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 0, 0) || defined(BUILD_OPENWRT))
+ 		roam_info.links[0].bssid = cur_network->network.MacAddress;
+ #else
+ 		roam_info.bssid = cur_network->network.MacAddress;
+@@ -1923,7 +1923,7 @@ exit:
+ }
+ 
+ static int cfg80211_rtw_add_key(struct wiphy *wiphy, struct net_device *ndev
+-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0))
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0) || defined(BUILD_OPENWRT))
+ 	, int link_id
+ #endif
+ 	, u8 key_index
+@@ -2088,7 +2088,7 @@ addkey_end:
+ }
+ 
+ static int cfg80211_rtw_get_key(struct wiphy *wiphy, struct net_device *ndev
+-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0))
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)) || defined(BUILD_OPENWRT)
+ 	, int link_id
+ #endif
+ 	, u8 keyid
+@@ -2279,7 +2279,7 @@ exit:
+ }
+ 
+ static int cfg80211_rtw_del_key(struct wiphy *wiphy, struct net_device *ndev,
+-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0))
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0) || defined(BUILD_OPENWRT))
+ 	int link_id,
+ #endif
+ #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37)) || defined(COMPAT_KERNEL_RELEASE)
+@@ -2303,7 +2303,7 @@ static int cfg80211_rtw_del_key(struct w
+ 
+ static int cfg80211_rtw_set_default_key(struct wiphy *wiphy,
+ 	struct net_device *ndev,
+-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0))
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0) || defined(BUILD_OPENWRT))
+ 	int link_id,
+ #endif
+ 	u8 key_index
+@@ -2355,7 +2355,7 @@ static int cfg80211_rtw_set_default_key(
+ #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 30))
+ int cfg80211_rtw_set_default_mgmt_key(struct wiphy *wiphy,
+ 	struct net_device *ndev,
+-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0))
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0) || defined(BUILD_OPENWRT))
+ 	int link_id,
+ #endif
+ 	u8 key_index)
+@@ -5418,7 +5418,7 @@ static int cfg80211_rtw_change_beacon(st
+ 	return ret;
+ }
+ 
+-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 19, 2))
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 19, 2) || defined(BUILD_OPENWRT))
+ static int cfg80211_rtw_stop_ap(struct wiphy *wiphy, struct net_device *ndev,
+ 		unsigned int link_id)
+ #else
+@@ -6803,7 +6803,7 @@ exit:
+ 
+ #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0))
+ static int cfg80211_rtw_get_channel(struct wiphy *wiphy,
+-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 19, 2))
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 19, 2) || defined(BUILD_OPENWRT))
+ 	struct wireless_dev *wdev, unsigned int link_id,
+ #else
+ 	struct wireless_dev *wdev,
+@@ -10742,7 +10742,7 @@ void rtw_wdev_unregister(struct wireless
+ 	rtw_cfg80211_indicate_scan_done(adapter, _TRUE);
+ 
+ 	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 11, 0)) || defined(COMPAT_KERNEL_RELEASE)
+-	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 19, 2))
++	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 19, 2)  || defined(BUILD_OPENWRT))
+ 	if (wdev->links[0].client.current_bss) {
+ 	#else
+ 	if (wdev->current_bss) {
+Index: rtl88x2bu-2023-03-21-f0a2c9c7/os_dep/linux/os_intfs.c
+===================================================================
+--- rtl88x2bu-2023-03-21-f0a2c9c7.orig/os_dep/linux/os_intfs.c
++++ rtl88x2bu-2023-03-21-f0a2c9c7/os_dep/linux/os_intfs.c
+@@ -1634,7 +1634,7 @@ static int rtw_net_set_mac_address(struc
+ 	}
+ 
+ 	_rtw_memcpy(adapter_mac_addr(padapter), sa->sa_data, ETH_ALEN); /* set mac addr to adapter */
+-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 17, 0))
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 17, 0) || defined(BUILD_OPENWRT))
+ 	eth_hw_addr_set(pnetdev, sa->sa_data);
+ #else
+ 	_rtw_memcpy(pnetdev->dev_addr, sa->sa_data, ETH_ALEN); /* set mac addr to net_device */
+@@ -2156,6 +2156,8 @@ int rtw_os_ndev_register(_adapter *adapt
+ #ifdef CONFIG_RTW_NAPI
+ #if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0))
+ 	netif_napi_add_weight(ndev, &adapter->napi, rtw_recv_napi_poll, RTL_NAPI_WEIGHT);
++#elif defined(BUILD_OPENWRT)
++	netif_napi_add(ndev, &adapter->napi, rtw_recv_napi_poll);
+ #else
+ 	netif_napi_add(ndev, &adapter->napi, rtw_recv_napi_poll, RTL_NAPI_WEIGHT);
+ #endif
+@@ -2178,7 +2180,7 @@ int rtw_os_ndev_register(_adapter *adapt
+ 	/* alloc netdev name */
+ 	rtw_init_netdev_name(ndev, name);
+ 
+-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 17, 0))
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 17, 0) || defined(BUILD_OPENWRT))
+ 	eth_hw_addr_set(ndev, adapter_mac_addr(adapter));
+ #else
+ 	_rtw_memcpy(ndev->dev_addr, adapter_mac_addr(adapter), ETH_ALEN);
+Index: rtl88x2bu-2023-03-21-f0a2c9c7/os_dep/osdep_service.c
+===================================================================
+--- rtl88x2bu-2023-03-21-f0a2c9c7.orig/os_dep/osdep_service.c
++++ rtl88x2bu-2023-03-21-f0a2c9c7/os_dep/osdep_service.c
+@@ -1309,7 +1309,7 @@ u32 _rtw_down_sema(_sema *sema)
+ inline void thread_exit(_completion *comp)
+ {
+ #ifdef PLATFORM_LINUX
+-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 17, 0))
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 17, 0) || defined(BUILD_OPENWRT))
+ 	kthread_complete_and_exit(comp, 0);
+ #else
+ 	complete_and_exit(comp, 0);
+@@ -2914,7 +2914,7 @@ u64 rtw_division64(u64 x, u64 y)
+ inline u32 rtw_random32(void)
+ {
+ #ifdef PLATFORM_LINUX
+-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0))
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0) || defined(BUILD_OPENWRT))
+ 	return get_random_u32();
+ #elif (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0))
+ 	return prandom_u32();
