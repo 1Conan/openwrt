@@ -34,7 +34,7 @@ endef
 
 define Package/ath11k-firmware-ipq6018
 $(Package/ath11k-firmware-default)
-  TITLE:=ath11k firmware for IPQ6018 devices
+  TITLE:=IPQ6018 ath11k firmware
 endef
 
 define Package/ath11k-firmware-ipq8074
