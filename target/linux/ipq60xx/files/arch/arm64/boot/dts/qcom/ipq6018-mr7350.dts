@@ -110,7 +110,7 @@
 		status = "okay";
 	};
 
-	dp1: dp@1 {
+	dp@1 {
 		compatible = "qcom,nss-dp";
 		reg = <0x0 0x3a001000 0x0 0x200>;
 		qcom,mactype = <0>;
@@ -244,7 +244,6 @@
 
 &wifi {
 	status = "okay";
-	qcom,ath11k-fw-memory-mode = <2>;
 };
 
 &blsp1_i2c3 {
