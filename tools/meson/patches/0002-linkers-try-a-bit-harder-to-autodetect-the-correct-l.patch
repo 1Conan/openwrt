@@ -1,0 +1,43 @@
+From 01ec8330816f4305564d5fe785064701ebe93c91 Mon Sep 17 00:00:00 2001
+From: Eli Schwartz <eschwartz@archlinux.org>
+Date: Thu, 26 May 2022 14:36:03 -0400
+Subject: [PATCH 2/3] linkers: try a bit harder to autodetect the correct
+ linker id
+
+mingw GCC using ld.bfd emits diagnostics that include
+"-plugin-opt=-pass-through=-lmoldname" and this triggers a match for
+mold when it should not.
+
+Instead, always check the very beginning of the output for the linker
+id. This is pretty consistent:
+
+- it is always on stdout
+
+- GCC may put additional things on stderr we don't care about
+
+- swift is bizarre and on some OSes redirects the linker stdout to
+  swiftc's stderr, but it will still be the only stderr; we didn't even
+  check stderr at all until commit 712cbe056811ebdf0d7358ba07a874717a1c736f
+
+For gold/bfd linkers, the linker id is always the *second* word, after
+the legally mandated "GNU" we already check for.
+---
+ mesonbuild/linkers/detect.py | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+--- a/mesonbuild/linkers/detect.py
++++ b/mesonbuild/linkers/detect.py
+@@ -192,9 +192,11 @@ def guess_nix_linker(env: 'Environment',
+         linker = AppleDynamicLinker(compiler, for_machine, comp_class.LINKER_PREFIX, override, version=v)
+     elif 'GNU' in o or 'GNU' in e:
+         cls: T.Type[GnuDynamicLinker]
+-        if 'gold' in o or 'gold' in e:
++        # this is always the only thing on stdout, except for swift
++        # which may or may not redirect the linker stdout to stderr
++        if o.startswith('GNU gold') or e.startswith('GNU gold'):
+             cls = GnuGoldDynamicLinker
+-        elif 'mold' in o or 'mold' in e:
++        elif o.startswith('mold') or e.startswith('mold'):
+             cls = MoldDynamicLinker
+         else:
+             cls = GnuBFDDynamicLinker

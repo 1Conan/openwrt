@@ -1,0 +1,530 @@
+From 8133c9124779b11697ad18dbcbd0c5c04fbaeb57 Mon Sep 17 00:00:00 2001
+From: Fini Jastrow <ulf.fini.jastrow@desy.de>
+Date: Tue, 8 Mar 2022 18:41:08 +0100
+Subject: [PATCH 1/3] linkers: Add support for mold linker
+
+[why]
+Support for the relatively new mold linker is missing. If someone wants
+to use mold as linker `LDFLAGS="-B/path/to/mold"` has to be added instead
+of the usual `CC_LD=mold meson ...` or `CXX_LD=mold meson ...`.
+
+[how]
+Allow `mold' as linker for clang and newer GCC versions (that versions
+that have support).
+
+The error message can be a bit off, because it is generic for all GNU
+like compilers, but I guess that is ok. (i.e. 'mold' is not listed as
+possible linker, even if it would be possible for the given compiler.)
+
+[note]
+GCC Version 12.0.1 is not sufficient to say `mold` is supported. The
+expected release with support will be 12.1.0.
+On the other hand people that use the un-released 12.0.1 will probably
+have built it from trunk. Allowing 12.0.1 is helping bleeding edge
+developers to use mold in Meson already now.
+
+Fixes: #9072
+
+Signed-off-by: Fini Jastrow <ulf.fini.jastrow@desy.de>
+---
+ docs/markdown/Reference-tables.md      |  1 +
+ docs/markdown/snippets/mold-support.md |  4 ++
+ mesonbuild/compilers/compilers.py      |  4 +-
+ mesonbuild/compilers/d.py              |  4 +-
+ mesonbuild/compilers/detect.py         | 70 +++++++++++++-------------
+ mesonbuild/compilers/mixins/clang.py   |  8 +--
+ mesonbuild/compilers/mixins/clike.py   |  4 +-
+ mesonbuild/compilers/mixins/gnu.py     | 10 +++-
+ mesonbuild/compilers/rust.py           |  4 +-
+ mesonbuild/linkers/detect.py           | 14 ++++--
+ mesonbuild/linkers/linkers.py          |  7 ++-
+ unittests/linuxliketests.py            |  4 +-
+ 12 files changed, 78 insertions(+), 56 deletions(-)
+ create mode 100644 docs/markdown/snippets/mold-support.md
+
+--- /dev/null
++++ b/docs/markdown/snippets/mold-support.md
+@@ -0,0 +1,4 @@
++## Support for mold linker added
++
++The high performance linker mold can be selected via `CC_LD` or `CXX_LD` for
++Clang and GCC >= 12.0.1.
+--- a/mesonbuild/compilers/compilers.py
++++ b/mesonbuild/compilers/compilers.py
+@@ -1,4 +1,4 @@
+-# Copyright 2012-2019 The Meson development team
++# Copyright 2012-2022 The Meson development team
+ 
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+@@ -1007,7 +1007,7 @@ class Compiler(HoldableObject, metaclass
+         return dep.get_link_args()
+ 
+     @classmethod
+-    def use_linker_args(cls, linker: str) -> T.List[str]:
++    def use_linker_args(cls, linker: str, version: str) -> T.List[str]:
+         """Get a list of arguments to pass to the compiler to set the linker.
+         """
+         return []
+--- a/mesonbuild/compilers/d.py
++++ b/mesonbuild/compilers/d.py
+@@ -1,4 +1,4 @@
+-# Copyright 2012-2017 The Meson development team
++# Copyright 2012-2022 The Meson development team
+ 
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+@@ -805,7 +805,7 @@ class LLVMDCompiler(DmdLikeCompilerMixin
+         return ldc_optimization_args[optimization_level]
+ 
+     @classmethod
+-    def use_linker_args(cls, linker: str) -> T.List[str]:
++    def use_linker_args(cls, linker: str, version: str) -> T.List[str]:
+         return [f'-linker={linker}']
+ 
+     def get_linker_always_args(self) -> T.List[str]:
+--- a/mesonbuild/compilers/detect.py
++++ b/mesonbuild/compilers/detect.py
+@@ -1,4 +1,4 @@
+-# Copyright 2012-2021 The Meson development team
++# Copyright 2012-2022 The Meson development team
+ 
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+@@ -436,7 +436,7 @@ def _detect_c_or_cpp_compiler(env: 'Envi
+                 version = _get_gnu_version_from_defines(defines)
+                 cls = GnuCCompiler if lang == 'c' else GnuCPPCompiler
+ 
+-            linker = guess_nix_linker(env, compiler, cls, for_machine)
++            linker = guess_nix_linker(env, compiler, cls, version, for_machine)
+ 
+             return cls(
+                 ccache + compiler, version, for_machine, is_cross,
+@@ -497,7 +497,7 @@ def _detect_c_or_cpp_compiler(env: 'Envi
+             else:
+                 target = 'unknown target'
+             cls = ClangClCCompiler if lang == 'c' else ClangClCPPCompiler
+-            linker = guess_win_linker(env, ['lld-link'], cls, for_machine)
++            linker = guess_win_linker(env, ['lld-link'], cls, version, for_machine)
+             return cls(
+                 compiler, version, for_machine, is_cross, info, target,
+                 exe_wrap, linker=linker)
+@@ -518,11 +518,11 @@ def _detect_c_or_cpp_compiler(env: 'Envi
+                 # style ld, but for clang on "real" windows we'll use
+                 # either link.exe or lld-link.exe
+                 try:
+-                    linker = guess_win_linker(env, compiler, cls, for_machine, invoked_directly=False)
++                    linker = guess_win_linker(env, compiler, cls, version, for_machine, invoked_directly=False)
+                 except MesonException:
+                     pass
+             if linker is None:
+-                linker = guess_nix_linker(env, compiler, cls, for_machine)
++                linker = guess_nix_linker(env, compiler, cls, version, for_machine)
+ 
+             return cls(
+                 ccache + compiler, version, for_machine, is_cross, info,
+@@ -556,7 +556,7 @@ def _detect_c_or_cpp_compiler(env: 'Envi
+                 m = f'Failed to detect MSVC compiler target architecture: \'cl /?\' output is\n{cl_signature}'
+                 raise EnvironmentException(m)
+             cls = VisualStudioCCompiler if lang == 'c' else VisualStudioCPPCompiler
+-            linker = guess_win_linker(env, ['link'], cls, for_machine)
++            linker = guess_win_linker(env, ['link'], cls, version, for_machine)
+             # As of this writing, CCache does not support MSVC but sccache does.
+             if 'sccache' in ccache:
+                 final_compiler = ccache + compiler
+@@ -581,7 +581,7 @@ def _detect_c_or_cpp_compiler(env: 'Envi
+                 info, exe_wrap, linker=linker)
+         if '(ICC)' in out:
+             cls = IntelCCompiler if lang == 'c' else IntelCPPCompiler
+-            l = guess_nix_linker(env, compiler, cls, for_machine)
++            l = guess_nix_linker(env, compiler, cls, version, for_machine)
+             return cls(
+                 ccache + compiler, version, for_machine, is_cross, info,
+                 exe_wrap, full_version=full_version, linker=l)
+@@ -699,21 +699,21 @@ def detect_fortran_compiler(env: 'Enviro
+                 if guess_gcc_or_lcc == 'lcc':
+                     version = _get_lcc_version_from_defines(defines)
+                     cls = ElbrusFortranCompiler
+-                    linker = guess_nix_linker(env, compiler, cls, for_machine)
++                    linker = guess_nix_linker(env, compiler, cls, version, for_machine)
+                     return cls(
+                         compiler, version, for_machine, is_cross, info,
+                         exe_wrap, defines, full_version=full_version, linker=linker)
+                 else:
+                     version = _get_gnu_version_from_defines(defines)
+                     cls = GnuFortranCompiler
+-                    linker = guess_nix_linker(env, compiler, cls, for_machine)
++                    linker = guess_nix_linker(env, compiler, cls, version, for_machine)
+                     return cls(
+                         compiler, version, for_machine, is_cross, info,
+                         exe_wrap, defines, full_version=full_version, linker=linker)
+ 
+             if 'G95' in out:
+                 cls = G95FortranCompiler
+-                linker = guess_nix_linker(env, compiler, cls, for_machine)
++                linker = guess_nix_linker(env, compiler, cls, version, for_machine)
+                 return G95FortranCompiler(
+                     compiler, version, for_machine, is_cross, info,
+                     exe_wrap, full_version=full_version, linker=linker)
+@@ -721,7 +721,7 @@ def detect_fortran_compiler(env: 'Enviro
+             if 'Sun Fortran' in err:
+                 version = search_version(err)
+                 cls = SunFortranCompiler
+-                linker = guess_nix_linker(env, compiler, cls, for_machine)
++                linker = guess_nix_linker(env, compiler, cls, version, for_machine)
+                 return SunFortranCompiler(
+                     compiler, version, for_machine, is_cross, info,
+                     exe_wrap, full_version=full_version, linker=linker)
+@@ -737,7 +737,7 @@ def detect_fortran_compiler(env: 'Enviro
+                     target, exe_wrap, linker=linker)
+ 
+             if 'ifort (IFORT)' in out:
+-                linker = guess_nix_linker(env, compiler, IntelFortranCompiler, for_machine)
++                linker = guess_nix_linker(env, compiler, IntelFortranCompiler, version, for_machine)
+                 return IntelFortranCompiler(
+                     compiler, version, for_machine, is_cross, info,
+                     exe_wrap, full_version=full_version, linker=linker)
+@@ -767,14 +767,14 @@ def detect_fortran_compiler(env: 'Enviro
+ 
+             if 'flang' in out or 'clang' in out:
+                 linker = guess_nix_linker(env,
+-                    compiler, FlangFortranCompiler, for_machine)
++                                          compiler, FlangFortranCompiler, version, for_machine)
+                 return FlangFortranCompiler(
+                     compiler, version, for_machine, is_cross, info,
+                     exe_wrap, full_version=full_version, linker=linker)
+ 
+             if 'Open64 Compiler Suite' in err:
+                 linker = guess_nix_linker(env,
+-                    compiler, Open64FortranCompiler, for_machine)
++                                          compiler, Open64FortranCompiler, version, for_machine)
+                 return Open64FortranCompiler(
+                     compiler, version, for_machine, is_cross, info,
+                     exe_wrap, full_version=full_version, linker=linker)
+@@ -822,7 +822,7 @@ def _detect_objc_or_objcpp_compiler(env:
+                 continue
+             version = _get_gnu_version_from_defines(defines)
+             comp = GnuObjCCompiler if objc else GnuObjCPPCompiler
+-            linker = guess_nix_linker(env, compiler, comp, for_machine)
++            linker = guess_nix_linker(env, compiler, comp, version, for_machine)
+             return comp(
+                 ccache + compiler, version, for_machine, is_cross, info,
+                 exe_wrap, defines, linker=linker)
+@@ -839,12 +839,12 @@ def _detect_objc_or_objcpp_compiler(env:
+             if 'windows' in out or env.machines[for_machine].is_windows():
+                 # If we're in a MINGW context this actually will use a gnu style ld
+                 try:
+-                    linker = guess_win_linker(env, compiler, comp, for_machine)
++                    linker = guess_win_linker(env, compiler, comp, version, for_machine)
+                 except MesonException:
+                     pass
+ 
+             if not linker:
+-                linker = guess_nix_linker(env, compiler, comp, for_machine)
++                linker = guess_nix_linker(env, compiler, comp, version, for_machine)
+             return comp(
+                 ccache + compiler, version, for_machine,
+                 is_cross, info, exe_wrap, linker=linker, defines=defines)
+@@ -989,7 +989,7 @@ def detect_rust_compiler(env: 'Environme
+                 extra_args: T.Dict[str, T.Union[str, bool]] = {}
+                 always_args: T.List[str] = []
+                 if is_link_exe:
+-                    compiler.extend(cls.use_linker_args(cc.linker.exelist[0]))
++                    compiler.extend(cls.use_linker_args(cc.linker.exelist[0], ''))
+                     extra_args['direct'] = True
+                     extra_args['machine'] = cc.linker.machine
+                 else:
+@@ -997,7 +997,7 @@ def detect_rust_compiler(env: 'Environme
+                     if 'ccache' in exelist[0]:
+                         del exelist[0]
+                     c = exelist.pop(0)
+-                    compiler.extend(cls.use_linker_args(c))
++                    compiler.extend(cls.use_linker_args(c, ''))
+ 
+                     # Also ensure that we pass any extra arguments to the linker
+                     for l in exelist:
+@@ -1015,12 +1015,12 @@ def detect_rust_compiler(env: 'Environme
+                                                 **extra_args)
+             elif 'link' in override[0]:
+                 linker = guess_win_linker(env,
+-                    override, cls, for_machine, use_linker_prefix=False)
++                                          override, cls, version, for_machine, use_linker_prefix=False)
+                 # rustc takes linker arguments without a prefix, and
+                 # inserts the correct prefix itself.
+                 assert isinstance(linker, VisualStudioLikeLinkerMixin)
+                 linker.direct = True
+-                compiler.extend(cls.use_linker_args(linker.exelist[0]))
++                compiler.extend(cls.use_linker_args(linker.exelist[0], ''))
+             else:
+                 # On linux and macos rust will invoke the c compiler for
+                 # linking, on windows it will use lld-link or link.exe.
+@@ -1032,7 +1032,7 @@ def detect_rust_compiler(env: 'Environme
+                 # Of course, we're not going to use any of that, we just
+                 # need it to get the proper arguments to pass to rustc
+                 c = linker.exelist[1] if linker.exelist[0].endswith('ccache') else linker.exelist[0]
+-                compiler.extend(cls.use_linker_args(c))
++                compiler.extend(cls.use_linker_args(c, ''))
+ 
+             env.coredata.add_lang_args(cls.language, cls, for_machine, env)
+             return cls(
+@@ -1090,17 +1090,17 @@ def detect_d_compiler(env: 'Environment'
+                 if info.is_windows() or info.is_cygwin():
+                     objfile = os.path.basename(f)[:-1] + 'obj'
+                     linker = guess_win_linker(env,
+-                        exelist,
+-                        LLVMDCompiler, for_machine,
+-                        use_linker_prefix=True, invoked_directly=False,
+-                        extra_args=[f])
++                                              exelist,
++                                              LLVMDCompiler, full_version, for_machine,
++                                              use_linker_prefix=True, invoked_directly=False,
++                                              extra_args=[f])
+                 else:
+                     # LDC writes an object file to the current working directory.
+                     # Clean it up.
+                     objfile = os.path.basename(f)[:-1] + 'o'
+                     linker = guess_nix_linker(env,
+-                        exelist, LLVMDCompiler, for_machine,
+-                        extra_args=[f])
++                                              exelist, LLVMDCompiler, full_version, for_machine,
++                                              extra_args=[f])
+             finally:
+                 windows_proof_rm(f)
+                 windows_proof_rm(objfile)
+@@ -1109,7 +1109,7 @@ def detect_d_compiler(env: 'Environment'
+                 exelist, version, for_machine, info, arch,
+                 full_version=full_version, linker=linker, version_output=out)
+         elif 'gdc' in out:
+-            linker = guess_nix_linker(env, exelist, GnuDCompiler, for_machine)
++            linker = guess_nix_linker(env, exelist, GnuDCompiler, version, for_machine)
+             return GnuDCompiler(
+                 exelist, version, for_machine, info, arch,
+                 exe_wrapper=exe_wrap, is_cross=is_cross,
+@@ -1129,13 +1129,13 @@ def detect_d_compiler(env: 'Environment'
+                 if info.is_windows() or info.is_cygwin():
+                     objfile = os.path.basename(f)[:-1] + 'obj'
+                     linker = guess_win_linker(env,
+-                        exelist, DmdDCompiler, for_machine,
+-                        invoked_directly=False, extra_args=[f, arch_arg])
++                                              exelist, DmdDCompiler, full_version, for_machine,
++                                              invoked_directly=False, extra_args=[f, arch_arg])
+                 else:
+                     objfile = os.path.basename(f)[:-1] + 'o'
+                     linker = guess_nix_linker(env,
+-                        exelist, DmdDCompiler, for_machine,
+-                        extra_args=[f, arch_arg])
++                                              exelist, DmdDCompiler, full_version, for_machine,
++                                              extra_args=[f, arch_arg])
+             finally:
+                 windows_proof_rm(f)
+                 windows_proof_rm(objfile)
+@@ -1165,8 +1165,8 @@ def detect_swift_compiler(env: 'Environm
+         # As for 5.0.1 swiftc *requires* a file to check the linker:
+         with tempfile.NamedTemporaryFile(suffix='.swift') as f:
+             linker = guess_nix_linker(env,
+-                exelist, SwiftCompiler, for_machine,
+-                extra_args=[f.name])
++                                      exelist, SwiftCompiler, version, for_machine,
++                                      extra_args=[f.name])
+         return SwiftCompiler(
+             exelist, version, for_machine, is_cross, info, linker=linker)
+ 
+--- a/mesonbuild/compilers/mixins/clang.py
++++ b/mesonbuild/compilers/mixins/clang.py
+@@ -1,4 +1,4 @@
+-# Copyright 2019 The meson development team
++# Copyright 2019-2022 The meson development team
+ #
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+@@ -117,7 +117,7 @@ class ClangCompiler(GnuLikeCompiler):
+             return []
+ 
+     @classmethod
+-    def use_linker_args(cls, linker: str) -> T.List[str]:
++    def use_linker_args(cls, linker: str, version: str) -> T.List[str]:
+         # Clang additionally can use a linker specified as a path, which GCC
+         # (and other gcc-like compilers) cannot. This is because clang (being
+         # llvm based) is retargetable, while GCC is not.
+@@ -126,13 +126,15 @@ class ClangCompiler(GnuLikeCompiler):
+         # qcld: Qualcomm Snapdragon linker, based on LLVM
+         if linker == 'qcld':
+             return ['-fuse-ld=qcld']
++        if linker == 'mold':
++            return ['-fuse-ld=mold']
+ 
+         if shutil.which(linker):
+             if not shutil.which(linker):
+                 raise mesonlib.MesonException(
+                     f'Cannot find linker {linker}.')
+             return [f'-fuse-ld={linker}']
+-        return super().use_linker_args(linker)
++        return super().use_linker_args(linker, version)
+ 
+     def get_has_func_attribute_extra_args(self, name: str) -> T.List[str]:
+         # Clang only warns about unknown or ignored attributes, so force an
+--- a/mesonbuild/compilers/mixins/clike.py
++++ b/mesonbuild/compilers/mixins/clike.py
+@@ -1,4 +1,4 @@
+-# Copyright 2012-2017 The Meson development team
++# Copyright 2012-2022 The Meson development team
+ 
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+@@ -410,7 +410,7 @@ class CLikeCompiler(Compiler):
+         if mode is CompileCheckMode.LINK:
+             ld_value = env.lookup_binary_entry(self.for_machine, self.language + '_ld')
+             if ld_value is not None:
+-                largs += self.use_linker_args(ld_value[0])
++                largs += self.use_linker_args(ld_value[0], self.version)
+ 
+             # Add LDFLAGS from the env
+             sys_ld_args = env.coredata.get_external_link_args(self.for_machine, self.language)
+--- a/mesonbuild/compilers/mixins/gnu.py
++++ b/mesonbuild/compilers/mixins/gnu.py
+@@ -1,4 +1,4 @@
+-# Copyright 2019 The meson development team
++# Copyright 2019-2022 The meson development team
+ #
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+@@ -306,7 +306,7 @@ class GnuLikeCompiler(Compiler, metaclas
+         return ['-I' + path]
+ 
+     @classmethod
+-    def use_linker_args(cls, linker: str) -> T.List[str]:
++    def use_linker_args(cls, linker: str, version: str) -> T.List[str]:
+         if linker not in {'gold', 'bfd', 'lld'}:
+             raise mesonlib.MesonException(
+                 f'Unsupported linker, only bfd, gold, and lld are supported, not {linker}.')
+@@ -389,3 +389,9 @@ class GnuCompiler(GnuLikeCompiler):
+         elif threads > 0:
+             return [f'-flto={threads}']
+         return super().get_lto_compile_args(threads=threads)
++
++    @classmethod
++    def use_linker_args(cls, linker: str, version: str) -> T.List[str]:
++        if linker == 'mold' and mesonlib.version_compare(version, '>=12.0.1'):
++            return ['-fuse-ld=mold']
++        return super().use_linker_args(linker, version)
+--- a/mesonbuild/compilers/rust.py
++++ b/mesonbuild/compilers/rust.py
+@@ -1,4 +1,4 @@
+-# Copyright 2012-2017 The Meson development team
++# Copyright 2012-2022 The Meson development team
+ 
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+@@ -136,7 +136,7 @@ class RustCompiler(Compiler):
+         return ['-o', outputname]
+ 
+     @classmethod
+-    def use_linker_args(cls, linker: str) -> T.List[str]:
++    def use_linker_args(cls, linker: str, version: str) -> T.List[str]:
+         return ['-C', f'linker={linker}']
+ 
+     # Rust does not have a use_linker_args because it dispatches to a gcc-like
+--- a/mesonbuild/linkers/detect.py
++++ b/mesonbuild/linkers/detect.py
+@@ -1,4 +1,4 @@
+-# Copyright 2012-2021 The Meson development team
++# Copyright 2012-2022 The Meson development team
+ 
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+@@ -22,6 +22,7 @@ from .linkers import (
+     GnuDynamicLinker,
+     GnuGoldDynamicLinker,
+     GnuBFDDynamicLinker,
++    MoldDynamicLinker,
+     LLVMDynamicLinker,
+     QualcommLLVMDynamicLinker,
+     MSVCDynamicLinker,
+@@ -54,7 +55,7 @@ def __failed_to_detect_linker(compiler:
+ 
+ 
+ def guess_win_linker(env: 'Environment', compiler: T.List[str], comp_class: T.Type['Compiler'],
+-                     for_machine: MachineChoice, *,
++                     comp_version: str, for_machine: MachineChoice, *,
+                      use_linker_prefix: bool = True, invoked_directly: bool = True,
+                      extra_args: T.Optional[T.List[str]] = None) -> 'DynamicLinker':
+     env.coredata.add_lang_args(comp_class.language, comp_class, for_machine, env)
+@@ -72,7 +73,7 @@ def guess_win_linker(env: 'Environment',
+     override = []  # type: T.List[str]
+     value = env.lookup_binary_entry(for_machine, comp_class.language + '_ld')
+     if value is not None:
+-        override = comp_class.use_linker_args(value[0])
++        override = comp_class.use_linker_args(value[0], comp_version)
+         check_args += override
+ 
+     if extra_args is not None:
+@@ -124,12 +125,13 @@ def guess_win_linker(env: 'Environment',
+     __failed_to_detect_linker(compiler, check_args, o, e)
+ 
+ def guess_nix_linker(env: 'Environment', compiler: T.List[str], comp_class: T.Type['Compiler'],
+-                     for_machine: MachineChoice, *,
++                     comp_version:str, for_machine: MachineChoice, *,
+                      extra_args: T.Optional[T.List[str]] = None) -> 'DynamicLinker':
+     """Helper for guessing what linker to use on Unix-Like OSes.
+ 
+     :compiler: Invocation to use to get linker
+     :comp_class: The Compiler Type (uninstantiated)
++    :comp_version: The compiler version string
+     :for_machine: which machine this linker targets
+     :extra_args: Any additional arguments required (such as a source file)
+     """
+@@ -145,7 +147,7 @@ def guess_nix_linker(env: 'Environment',
+     override = []  # type: T.List[str]
+     value = env.lookup_binary_entry(for_machine, comp_class.language + '_ld')
+     if value is not None:
+-        override = comp_class.use_linker_args(value[0])
++        override = comp_class.use_linker_args(value[0], comp_version)
+         check_args += override
+ 
+     _, o, e = Popen_safe(compiler + check_args)
+@@ -192,6 +194,8 @@ def guess_nix_linker(env: 'Environment',
+         cls: T.Type[GnuDynamicLinker]
+         if 'gold' in o or 'gold' in e:
+             cls = GnuGoldDynamicLinker
++        elif 'mold' in o or 'mold' in e:
++            cls = MoldDynamicLinker
+         else:
+             cls = GnuBFDDynamicLinker
+         linker = cls(compiler, for_machine, comp_class.LINKER_PREFIX, override, version=v)
+--- a/mesonbuild/linkers/linkers.py
++++ b/mesonbuild/linkers/linkers.py
+@@ -1,4 +1,4 @@
+-# Copyright 2012-2017 The Meson development team
++# Copyright 2012-2022 The Meson development team
+ 
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+@@ -801,6 +801,11 @@ class GnuBFDDynamicLinker(GnuDynamicLink
+     id = 'ld.bfd'
+ 
+ 
++class MoldDynamicLinker(GnuDynamicLinker):
++
++    id = 'ld.mold'
++
++
+ class LLVMDynamicLinker(GnuLikeDynamicLinkerMixin, PosixDynamicLinkerMixin, DynamicLinker):
+ 
+     """Representation of LLVM's ld.lld linker.
+--- a/unittests/linuxliketests.py
++++ b/unittests/linuxliketests.py
+@@ -1,4 +1,4 @@
+-# Copyright 2016-2021 The Meson development team
++# Copyright 2016-2022 The Meson development team
+ 
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+@@ -1585,7 +1585,7 @@ class LinuxlikeTests(BasePlatformTests):
+                 if isinstance(comp, (AppleClangCCompiler, AppleClangCPPCompiler,
+                                      AppleClangObjCCompiler, AppleClangObjCPPCompiler)):
+                     raise SkipTest('AppleClang is currently only supported with ld64')
+-                if lang != 'rust' and comp.use_linker_args('bfd') == []:
++                if lang != 'rust' and comp.use_linker_args('bfd', '') == []:
+                     raise SkipTest(
+                         f'Compiler {comp.id} does not support using alternative linkers')
+                 self.assertEqual(comp.linker.id, expected)
