@@ -974,6 +974,16 @@ define Device/gnubee_gb-pc2
 endef
 TARGET_DEVICES += gnubee_gb-pc2
 
+define Device/hanyang_hyc-g920
+  $(Device/dsa-migration)
+  $(Device/uimage-lzma-loader)
+  DEVICE_VENDOR := Hanyang
+  DEVICE_MODEL := CJ-Hello HYC-G920
+  IMAGE_SIZE := 15744k
+  DEVICE_PACKAGES := kmod-usb3 kmod-mt76x2 kmod-usb-ledtrig-usbport
+endef
+TARGET_DEVICES += hanyang_hyc-g920
+
 define Device/h3c_tx180x
   $(Device/dsa-migration)
   BLOCKSIZE := 128k
@@ -1495,6 +1505,19 @@ define Device/mediatek_mt7621-eval-board
   SUPPORTED_DEVICES += mt7621
 endef
 TARGET_DEVICES += mediatek_mt7621-eval-board
+
+define Device/mercusys_mr70x-v1
+  $(Device/dsa-migration)
+  $(Device/tplink-safeloader)
+  DEVICE_VENDOR := Mercusys
+  DEVICE_MODEL := MR70X
+  DEVICE_VARIANT := v1
+  DEVICE_PACKAGES := kmod-mt7915-firmware -uboot-envtools
+  TPLINK_BOARD_ID := MR70X
+  KERNEL := $(KERNEL_DTB) | uImage lzma
+  IMAGE_SIZE := 15744k
+endef
+TARGET_DEVICES += mercusys_mr70x-v1
 
 define Device/MikroTik
   $(Device/dsa-migration)
