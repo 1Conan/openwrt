@@ -1,0 +1,13 @@
+#!/bin/sh
+
+preinit_mount_factory_data() {
+	local mtd_path
+
+	. /lib/functions.sh
+	. /lib/functions/system.sh
+
+	case $(board_name) in
+	esac
+}
+
+boot_hook_add preinit_main preinit_mount_factory_data
