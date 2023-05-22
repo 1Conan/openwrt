@@ -57,6 +57,13 @@ define Download/qcn9074-board
 endef
 $(eval $(call Download,qcn9074-board))
 
+define Package/ath11k-firmware-ipq6018/install
+	$(INSTALL_DIR) $(1)/lib/firmware/IPQ6018
+	$(INSTALL_DATA) \
+		$(PKG_BUILD_DIR)/ath11k-firmware/IPQ6018/hw1.0/2.7.0.1/WLAN.HK.2.7.0.1-01744-QCAHKSWPL_SILICONZ-1/* \
+		$(1)/lib/firmware/IPQ6018/
+endef
+
 define Package/ath11k-firmware-ipq8074/install
 	$(INSTALL_DIR) $(1)/lib/firmware/IPQ8074
 	$(INSTALL_DATA) \
@@ -73,5 +80,6 @@ define Package/ath11k-firmware-qcn9074/install
 		$(DL_DIR)/$(QCN9074_BOARD_FILE) $(1)/lib/firmware/ath11k/QCN9074/hw1.0/board-2.bin
 endef
 
+$(eval $(call BuildPackage,ath11k-firmware-ipq6018))
 $(eval $(call BuildPackage,ath11k-firmware-ipq8074))
 $(eval $(call BuildPackage,ath11k-firmware-qcn9074))
