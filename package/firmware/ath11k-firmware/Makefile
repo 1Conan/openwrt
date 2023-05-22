@@ -32,6 +32,11 @@ define Package/ath11k-firmware-default
   DEPENDS:=
 endef
 
+define Package/ath11k-firmware-ipq6018
+$(Package/ath11k-firmware-default)
+  TITLE:=IPQ6018 ath11k firmware
+endef
+
 define Package/ath11k-firmware-ipq8074
 $(Package/ath11k-firmware-default)
   TITLE:=IPQ8074 ath11k firmware
