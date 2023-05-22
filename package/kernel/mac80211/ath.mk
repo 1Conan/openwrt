@@ -305,6 +305,7 @@ define KernelPackage/ath11k
   +kmod-crypto-michael-mic +ATH11K_THERMAL:kmod-hwmon-core +ATH11K_THERMAL:kmod-thermal
   FILES:=$(PKG_BUILD_DIR)/drivers/soc/qcom/qmi_helpers.ko \
   $(PKG_BUILD_DIR)/drivers/net/wireless/ath/ath11k/ath11k.ko
+  MODPARAMS.ath11k:=frame_mode=1
 endef
 
 define KernelPackage/ath11k/description
@@ -317,7 +318,7 @@ define KernelPackage/ath11k/config
        config ATH11K_THERMAL
                bool "Enable thermal sensors and throttling support"
                depends on PACKAGE_kmod-ath11k
-               default y if TARGET_ipq807x
+               default y if (TARGET_ipq60xx||TARGET_ipq807x)
 
 endef
 
@@ -325,7 +326,7 @@ define KernelPackage/ath11k-ahb
   $(call KernelPackage/mac80211/Default)
   TITLE:=Qualcomm 802.11ax AHB wireless chipset support
   URL:=https://wireless.wiki.kernel.org/en/users/drivers/ath11k
-  DEPENDS+= @TARGET_ipq807x +kmod-ath11k +kmod-qrtr-smd
+  DEPENDS+= @(TARGET_ipq60xx||TARGET_ipq807x) +kmod-ath11k +kmod-qrtr-smd
   FILES:=$(PKG_BUILD_DIR)/drivers/net/wireless/ath/ath11k/ath11k_ahb.ko
   AUTOLOAD:=$(call AutoProbe,ath11k_ahb)
 endef
