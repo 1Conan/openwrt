@@ -137,6 +137,9 @@ platform_check_image() {
 
 platform_do_upgrade() {
 	case "$(board_name)" in
+	linksys,mr7350)
+		linksys_do_upgrade "$1"
+		;;
 	*)
 		default_do_upgrade "$1"
 		;;

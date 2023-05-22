@@ -6,6 +6,9 @@ setup_network()
 	local macaddr
 
 	case $(board_name) in
+	linksys,mr7350)
+		ucidef_set_interfaces_lan_wan "eth0 eth1 eth2 eth3" "eth4"
+		;;
 	*)
 		ucidef_set_interface_lan "eth0"
 		;;
