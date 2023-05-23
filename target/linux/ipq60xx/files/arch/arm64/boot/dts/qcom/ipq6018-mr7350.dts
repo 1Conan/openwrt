@@ -4,7 +4,6 @@
 
 #include "ipq6018.dtsi"
 #include "ipq6018-extra.dtsi"
-#include "ipq6018-regulator-mp5496.dtsi"
 #include "ipq6018-ess.dtsi"
 #include "ipq6018-thermal.dtsi"
 
