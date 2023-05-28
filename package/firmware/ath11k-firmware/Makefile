@@ -37,6 +37,16 @@ $(Package/ath11k-firmware-default)
   TITLE:=IPQ6018 ath11k firmware
 endef
 
+define Package/ath11k-firmware-ipq6018-2.6
+$(Package/ath11k-firmware-default)
+  TITLE:=IPQ6018 v2.6.0.1 ath11k firmware
+endef
+
+define Package/ath11k-firmware-ipq6018-2.5
+$(Package/ath11k-firmware-default)
+  TITLE:=IPQ6018 v2.5.0.1 ath11k firmware
+endef
+
 define Package/ath11k-firmware-ipq8074
 $(Package/ath11k-firmware-default)
   TITLE:=IPQ8074 ath11k firmware
@@ -69,6 +79,20 @@ define Package/ath11k-firmware-ipq6018/install
 		$(1)/lib/firmware/IPQ6018/
 endef
 
+define Package/ath11k-firmware-ipq6018-2.6/install
+	$(INSTALL_DIR) $(1)/lib/firmware/IPQ6018
+	$(INSTALL_DATA) \
+		$(PKG_BUILD_DIR)/ath11k-firmware/IPQ6018/hw1.0/2.6.0.1/WLAN.HK.2.6.0.1-00861-QCAHKSWPL_SILICONZ-1/* \
+		$(1)/lib/firmware/IPQ6018/
+endef
+
+define Package/ath11k-firmware-ipq6018-2.5/install
+	$(INSTALL_DIR) $(1)/lib/firmware/IPQ6018
+	$(INSTALL_DATA) \
+		$(PKG_BUILD_DIR)/ath11k-firmware/IPQ6018/hw1.0/2.5.0.1/WLAN.HK.2.5.0.1-01208-QCAHKSWPL_SILICONZ-1/* \
+		$(1)/lib/firmware/IPQ6018/
+endef
+
 define Package/ath11k-firmware-ipq8074/install
 	$(INSTALL_DIR) $(1)/lib/firmware/IPQ8074
 	$(INSTALL_DATA) \
@@ -86,5 +110,7 @@ define Package/ath11k-firmware-qcn9074/install
 endef
 
 $(eval $(call BuildPackage,ath11k-firmware-ipq6018))
+$(eval $(call BuildPackage,ath11k-firmware-ipq6018-2.6))
+$(eval $(call BuildPackage,ath11k-firmware-ipq6018-2.5))
 $(eval $(call BuildPackage,ath11k-firmware-ipq8074))
 $(eval $(call BuildPackage,ath11k-firmware-qcn9074))
