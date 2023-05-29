@@ -2,6 +2,7 @@
 
 [ -n "$INCLUDE_ONLY" ] || {
 	. /lib/functions.sh
+	. /lib/functions/modem.sh
 	. ../netifd-proto.sh
 	init_proto "$@"
 }
@@ -25,6 +26,10 @@ proto_qmi_init_config() {
 	proto_config_add_int plmn
 	proto_config_add_int timeout
 	proto_config_add_int mtu
+
+	# BackspaceWrt
+	proto_config_add_string bridge_type
+
 	proto_config_add_defaults
 }
 
@@ -36,10 +41,12 @@ proto_qmi_setup() {
 	local ip4table ip6table
 	local cid_4 pdh_4 cid_6 pdh_6
 	local ip_6 ip_prefix_length gateway_6 dns1_6 dns2_6
+	local bridge_type
 
 	json_get_vars device apn auth username password pincode delay modes
 	json_get_vars pdptype profile dhcp dhcpv6 autoconnect plmn ip4table
 	json_get_vars ip6table timeout mtu $PROTO_DEFAULT_OPTIONS
+	json_get_vars bridge_type
 
 	[ "$timeout" = "" ] && timeout="10"
 
@@ -431,6 +438,10 @@ proto_qmi_setup() {
 			ubus call network add_dynamic "$(json_dump)"
 		fi
 	}
+
+	if [ "${bridge_type}" = "passthrough" ] || [ "${bridge_type}" = "bridge" ]; then
+		setup_ip_passthrough "${interface}"
+	fi
 }
 
 qmi_wds_stop() {
