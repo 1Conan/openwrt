@@ -324,13 +324,18 @@ proto_mbim_setup() {
 proto_mbim_teardown() {
 	local interface="$1"
 
-	local device
-	json_get_vars device
+	local device bridge_type
+	json_get_vars device bridge_type
 	local tid=$(uci_get_state network $interface tid)
 
 	[ -n "$ctl_device" ] && device=$ctl_device
 
 	echo "mbim[$$]" "Stopping network"
+
+	if [ "${bridge_type}" = "passthrough" ] || [ "${bridge_type}" = "bridge" ]; then
+		teardown_ip_passthrough "${interface}"
+	fi
+
 	[ -n "$tid" ] && {
 		umbim $DBG -t $tid -d "$device" disconnect
 		uci_revert_state network $interface tid
