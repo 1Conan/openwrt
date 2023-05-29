@@ -2,6 +2,7 @@
 
 [ -n "$INCLUDE_ONLY" ] || {
 	. /lib/functions.sh
+	. /lib/functions/modem.sh
 	. ../netifd-proto.sh
 	init_proto "$@"
 }
@@ -24,6 +25,10 @@ proto_mbim_init_config() {
 	proto_config_add_string dhcpv6
 	proto_config_add_string pdptype
 	proto_config_add_int mtu
+
+	# BackspaceWrt
+	proto_config_add_string bridge_type
+
 	proto_config_add_defaults
 }
 
@@ -46,8 +51,10 @@ _proto_mbim_setup() {
 
 	local device apn pincode delay auth username password allow_roaming allow_partner
 	local dhcp dhcpv6 pdptype ip4table ip6table mtu $PROTO_DEFAULT_OPTIONS
+	local bridge_type
 	json_get_vars device apn pincode delay auth username password allow_roaming allow_partner
 	json_get_vars dhcp dhcpv6 pdptype ip4table ip6table mtu $PROTO_DEFAULT_OPTIONS
+	json_get_vars bridge_type
 
 	[ ! -e /proc/sys/net/ipv6 ] && ipv6=0 || json_get_var ipv6 ipv6
 
@@ -294,6 +301,10 @@ _proto_mbim_setup() {
 	}
 
 	uci_set_state network $interface tid "$tid"
+
+	if [ "${bridge_type}" = "passthrough" ] || [ "${bridge_type}" = "bridge" ]; then
+		setup_ip_passthrough "${interface}"
+	fi
 }
 
 proto_mbim_setup() {
