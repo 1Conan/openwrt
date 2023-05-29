@@ -466,12 +466,16 @@ qmi_wds_stop() {
 proto_qmi_teardown() {
 	local interface="$1"
 
-	local device cid_4 pdh_4 cid_6 pdh_6
-	json_get_vars device
+	local device cid_4 pdh_4 cid_6 pdh_6 bridge_type
+	json_get_vars device bridge_type
 
 	[ -n "$ctl_device" ] && device=$ctl_device
 
 	echo "Stopping network $interface"
+
+	if [ "${bridge_type}" = "passthrough" ] || [ "${bridge_type}" = "bridge" ]; then
+		teardown_ip_passthrough "${interface}"
+	fi
 
 	json_load "$(ubus call network.interface.$interface status)"
 	json_select data
