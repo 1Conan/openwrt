@@ -111,6 +111,7 @@ ramips_setup_interfaces()
 	tozed,zlt-s12-pro)
 		ucidef_set_interface "wwan" device "/dev/ttyUSB0" protocol "ncm"
 		uci add_list firewall.@zone[1].network='wwan'
+		ucidef_set_interface_lan "wan lan1 lan2 lan3"
 		;;
 	tplink,deco-m4r-v4)
 		ucidef_set_interfaces_lan_wan "eth1" "eth0"
